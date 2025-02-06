@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>horizon_quant_profiler</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="echarts.js"></script>
+  </head>
+  <body>
+    <div class="main_left">
+        <a href="#similarity">similarity</a>
+        <a href="#statistic_base">statistic</a>
+        <a href="#weight">weight</a>
+        <a href="#module_count">shared_op</a>
+        <a href="#fuse_checker">fuse_check</a>
+        <a href="#qconfig">qconfig</a>
+    </div>
+
+    <div class="main_right">
+      <div id="similarity"></div>
+      <script type="text/javascript">
+        var similarity_chart = echarts.init(document.getElementById('similarity'));
+        var similarity_data = {{ similarity_dict }}
+        window.onresize = function() {
+          similarity_chart.resize();
+        };
+
+        var option = {
+          title: {
+            text: 'similarity',
+            x: 'center',
+          },
+          grid: {
+            top: '100px',
+            bottom: '90px',
+            left: '75px',
+            right: '100px'
+          },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow',
+              shadowStyle: {
+                color: 'rgba(0, 0, 0, 0.2)'
+              }
+            },
+            backgroundColor: 'rgba(255, 255, 255, 0.8)'
+          },
+          legend: {
+            data: ['similarity', 'atol', 'single op error'],
+            x: 'center',
+            y: '40px'
+          },
+          xAxis: {
+            data: similarity_data.name,
+            type: 'category'
+          },
+          yAxis: [
+            {
+              type: 'value',
+              name: 'similarity',
+              show: true,
+              min: parseFloat(similarity_data.ybounds[0].toPrecision(2)),
+              max: parseFloat(similarity_data.ybounds[1].toPrecision(2)),
+            },
+            {
+              type: 'value',
+              name: 'N (scale)',
+              show: true,
+              min: parseFloat(similarity_data.ybounds[2].toPrecision(2)),
+              max: parseFloat(similarity_data.ybounds[3].toPrecision(2)),
+            }
+          ],
+          series: [
+            {
+              name: 'similarity',
+              type: 'line',
+              data: similarity_data.simi,
+              yAxisIndex: 0,
+            },
+            {
+              name: 'atol',
+              type: 'bar',
+              data: similarity_data.acc,
+              yAxisIndex: 1,
+            },
+            {
+              name: 'single op error',
+              type: 'bar',
+              data: similarity_data.single_op_error,
+              yAxisIndex: 1,
+            }
+          ],
+          dataZoom: [
+              {
+                id: 'dataZoomX',
+                type: 'slider',
+                xAxisIndex: [0],
+                filterMode: 'filter',
+              },
+              {
+                id: 'dataZoomY0',
+                type: 'slider',
+                yAxisIndex: [0],
+                filterMode: 'filter',
+                left: '5px',
+              },
+              {
+                id: 'dataZoomY1',
+                type: 'slider',
+                yAxisIndex: [1],
+                filterMode: 'filter',
+                right: '35px',
+              },
+              {
+                type: 'inside'
+              }
+          ],
+        };
+
+        similarity_chart.setOption(option);
+      </script>
+
+      <div id="statistic_base"></div>
+      <script type="text/javascript">
+        var statistic_dict = {{ statistic_dict }}
+        var base = document.getElementById("statistic_base")
+        for(var key in statistic_dict) {
+          var createDiv = document.createElement("div");
+          createDiv.id = 'statistic_'.concat(key);
+          createDiv.className = "statistic"
+          base.appendChild(createDiv);
+          var statistic_chart = echarts.init(document.getElementById('statistic_'.concat(key)));
+          var statistic_data = statistic_dict[key]
+          window.onresize = function() {
+            statistic_chart.resize();
+          };
+
+          var option = {
+            title: {
+              text: 'statistic_'.concat(key),
+              x: 'center',
+            },
+            grid: {
+              top: '100px',
+              bottom: '90px',
+              left: '75px',
+              right: '100px'
+            },
+            tooltip: {
+              trigger: 'axis',
+              axisPointer: {
+                type: 'shadow',
+                shadowStyle: {
+                  color: 'rgba(0, 0, 0, 0.2)'
+                }
+              },
+              backgroundColor: 'rgba(255, 255, 255, 0.8)'
+            },
+            legend: {
+              data: ['min', 'mean', 'max', 'var'],
+              x: 'center',
+              y: '40px'
+            },
+            xAxis: {
+              data: statistic_data.name,
+              type: 'category'
+            },
+            yAxis: [
+              {
+                type: 'value',
+                name: 'min/mean/max',
+                data: [],
+                min: parseFloat(statistic_data.ybounds[0].toPrecision(2)),
+                max: parseFloat(statistic_data.ybounds[1].toPrecision(2)),
+              },
+              {
+                type: 'value',
+                name: 'var',
+                data: [],
+                min: parseFloat(statistic_data.ybounds[2].toPrecision(2)),
+                max: parseFloat(statistic_data.ybounds[3].toPrecision(2)),
+              }
+            ],
+            series: [
+              {
+                name: 'min',
+                type: 'line',
+                data: statistic_data.fmin,
+                yAxisIndex: 0,
+              },
+              {
+                name: 'mean',
+                type: 'line',
+                data: statistic_data.fmean,
+                yAxisIndex: 0,
+              },
+              {
+                name: 'max',
+                type: 'line',
+                data: statistic_data.fmax,
+                yAxisIndex: 0,
+              },
+              {
+                name: 'var',
+                type: 'bar',
+                data: statistic_data.fvar,
+                yAxisIndex: 1,
+              },
+            ],
+            dataZoom: [
+                {
+                  id: 'dataZoomX',
+                  type: 'slider',
+                  xAxisIndex: [0],
+                  filterMode: 'filter',
+                },
+                {
+                  id: 'dataZoomY0',
+                  type: 'slider',
+                  yAxisIndex: [0],
+                  filterMode: 'filter',
+                  left: '5px',
+                },
+                {
+                  id: 'dataZoomY1',
+                  type: 'slider',
+                  yAxisIndex: [1],
+                  filterMode: 'filter',
+                  right: '35px',
+                },
+                {
+                  type: 'inside'
+                }
+            ],
+          };
+          statistic_chart.setOption(option);
+        }
+      </script>
+      
+      <div id="weight"></div>
+      <script type="text/javascript">
+        var weight_chart = echarts.init(document.getElementById('weight'));
+        var wdata = {{ weight_data }}
+        window.onresize = function() {
+          weight_chart.resize();
+        };
+
+        var option = {
+          title: {
+            text: 'weight comparison',
+            x: 'center',
+          },
+          grid: {
+            top: '100px',
+            bottom: '90px',
+            left: '75px',
+            right: '100px'
+          },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow',
+              shadowStyle: {
+                color: 'rgba(0, 0, 0, 0.2)'
+              }
+            },
+            backgroundColor: 'rgba(255, 255, 255, 0.8)'
+          },
+          legend: {
+            data: ['similarity', 'atol'],
+            x: 'center',
+            y: '40px'
+          },
+          xAxis: {
+            data: wdata.name,
+            type: 'category'
+          },
+          yAxis: [
+            {
+              type: 'value',
+              name: 'similarity',
+              show: true,
+              min: parseFloat(wdata.ybounds[0].toPrecision(2)),
+              max: parseFloat(wdata.ybounds[1].toPrecision(2)),
+            },
+            {
+              type: 'value',
+              name: 'atol',
+              show: true,
+              min: parseFloat(wdata.ybounds[2].toPrecision(2)),
+              max: parseFloat(wdata.ybounds[3].toPrecision(2)),
+            },
+          ],
+          series: [
+            {
+              name: 'similarity',
+              type: 'line',
+              data: wdata.simi,
+              yAxisIndex: 0,
+            },
+            {
+              name: 'atol',
+              type: 'bar',
+              data: wdata.atol,
+              yAxisIndex: 1,
+            },
+          ],
+          dataZoom: [
+              {
+                id: 'dataZoomX',
+                type: 'slider',
+                xAxisIndex: [0],
+                filterMode: 'filter',
+              },
+              {
+                id: 'dataZoomY0',
+                type: 'slider',
+                yAxisIndex: [0],
+                filterMode: 'filter',
+                left: '5px',
+              },
+              {
+                id: 'dataZoomY1',
+                type: 'slider',
+                yAxisIndex: [1],
+                filterMode: 'filter',
+                right: '35px',
+              },
+              {
+                type: 'inside'
+              }
+          ],
+        };
+
+        weight_chart.setOption(option);
+      </script>
+
+      <div id="module_count"></div>
+      <script type="text/javascript">
+        module_count = {{ module_count }}
+        var base = document.getElementById("module_count")
+        for(var key in module_count) {
+          var createDiv = document.createElement("div");
+          createDiv.id = 'module_count_'.concat(key);
+          //createDiv.className = "statistic"
+          base.appendChild(createDiv);
+          txt = ""
+          if (module_count[key] == null) {
+            txt += "<p> No module to check shared op </p>"
+          } else {
+            txt = "<p> Call times of each module in " + key + " are shown below: </p>"
+            txt += "<table>"
+            txt += "<tr><th> module name </th><th> call times </th></tr>"
+            for (x in module_count[key]) {
+              if (module_count[key][x] > 1) {
+                txt += "<tr bgcolor='red'>"
+              } else {
+                txt += "<tr>"
+              }
+              txt += "<td>" + x + "</td><td>" + module_count[key][x] + "</td></tr>";
+            }
+            txt += "</table>"          
+          }
+          document.getElementById(createDiv.id).innerHTML = txt;
+        }
+      </script>
+
+      <div id="fuse_checker"></div>
+      <script type="text/javascript">
+        unfused = {{ unfused }}
+        txt = ""
+        if (unfused == null) {
+          txt += "<p>No model to check unfused patterns! </p>"
+        } else if (unfused.length == 0) {
+          txt += "<p>No unfused patterns found in the model!</p>"
+        } else{
+          txt += "<p> Patterns shown below can be fused:</p>"
+          txt += "<table>"
+          txt += "<tr><th> index </th><th> module name </th><th> module type </th></th>"
+          for (var i=0; i < unfused.length; i++) {
+            txt += "<tr><td rowspan='" + unfused[i].length + "'>" + i + "</td><td>" + unfused[i][0][0] + "</td><td>" + unfused[i][0][1] + "</td></tr>";
+            for (var j=1; j < unfused[i].length; j++) {
+              txt += "<tr><td>" + unfused[i][j][0] + "</td><td>" + unfused[i][j][1] + "</td></tr>"
+            }
+          }
+          txt += "</table>"
+        }
+        document.getElementById("fuse_checker").innerHTML = txt;
+      </script>
+
+      <div id="qconfig"></div>
+      <script type="text/javascript">
+        qconfig = {{ qconfig }}
+        txt = ""
+        // out qinfo
+        if (JSON.stringify(qconfig) == "{}") {
+          txt += "<p> Please specify QAT model to check qconfig! </p>"
+        } else {
+          if (qconfig.out.length == 0) {
+            txt += "<p>The model has no out qconfig! Maybe not qat model? </p>"
+          } else {
+            txt += "<p> Each layer qconfig infos are shown below:</p>"
+            txt += "<table>"
+            txt += "<tr><th> module name </th><th> module type </th><th> input dtypes </th><th> out dtype </th><th> ch_axis </th></tr>"
+            for (var i=0; i < qconfig.out.length; i++) {
+              txt += "<tr><td>"
+              for (var j=0; j < qconfig.out[i].length-1; j++) {
+                txt += qconfig.out[i][j] + "</td><td>"
+              }
+              txt += qconfig.out[i][j] + "</td></tr>"
+            }
+            txt += "</table>"
+          }
+
+          // weight qinfo
+          if (qconfig.weight.length == 0) {
+            txt += "<p> The model has no weight qconfig! Maybe not qat moodel? </p>" 
+          } else {
+            txt += "<p> The model weight qconfig infos are shown below:</p>"
+            txt += "<table>"
+            txt += "<tr><th> module name </th><th> module type </th><th> weight qtype </th><th> ch_axis </th></tr>"
+            for (var i=0; i < qconfig.weight.length; i++) {
+              txt += "<tr><td>"
+              for (var j=0; j < qconfig.weight[i].length-1; j++) {
+                txt += qconfig.weight[i][j] + "</td><td>"
+              }
+              txt += qconfig.weight[i][j] + "</td></tr>"
+            }
+            txt += "</table>"
+          }
+
+          // unusual qinfo
+          if (qconfig.unusual.length == 0) {
+            txt += "<p> The model has no unusual qconfig configuration!</p>" 
+          } else {
+            txt += "<p> This layers qconfig configurations maybe unusual, please check:</p>"
+            txt += "<table>"
+            txt += "<tr><th> module name </th><th> module type </th><th> msg </th></tr>"
+            for (var i=0; i < qconfig.unusual.length; i++) {
+              txt += "<tr><td>"
+              for (var j=0; j < qconfig.unusual[i].length-1; j++) {
+                txt += qconfig.unusual[i][j] + "</td><td>"
+              }
+              txt += qconfig.unusual[i][j] + "</td></tr>"
+            }
+            txt += "</table>"
+          }
+        }
+        document.getElementById("qconfig").innerHTML = txt;
+      </script>
+    </div>
+
+  </body>
+</html>

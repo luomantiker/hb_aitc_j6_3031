@@ -1,0 +1,128 @@
+/* p {
+    font-weight: bold;
+} */
+
+table {
+    /* font-family: verdana, arial, sans-serif;  */
+    font-size:15px;
+    color:#333333;
+    border-width: 1px;
+    border-color: #666666;
+    border-collapse: collapse;
+    /* margin:auto; */
+}
+
+table th {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #666666;
+    background-color: #dedede;
+}
+
+table td {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #666666;
+    /* background-color: #ffffff; */
+}
+
+.main_left {
+    height: 100%;
+    width: 160px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #29292a;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+
+.main_left a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-family: verdana, arial, sans-serif;
+    font-size: 20px;
+    color: #818181;
+    display: block;
+}
+
+.main_left a.active {
+    background-color: rgb(17, 17, 250);
+    color: white;
+}
+
+.main_left a:hover:not(.active) {background-color: rgb(17, 17, 250);}
+
+.main_right {
+    position: absolute;
+    right: 0;
+    width: calc(100% - 200px);
+    left: 165px;
+    overflow-y: auto;
+}
+
+#similarity {
+    margin-left: 1px;
+    height: 500px;
+    border: 1px solid #e4e6e9;
+}
+
+#cosine-l1 {
+    margin-left: 1px;
+    height: 500px;
+    border: 1px solid #e4e6e9;
+}
+
+#atol-rtol {
+    margin-left: 1px;
+    height: 500px;
+    border: 1px solid #e4e6e9;
+}
+
+#sqnr-kl {
+    margin-left: 1px;
+    height: 500px;
+    border: 1px solid #e4e6e9;
+}
+
+#statistic-base {
+    margin-left: 1px;
+    margin-top: 10px;
+    height: 1500px;
+    border: 1px solid #e4e6e9;
+}
+
+.statistic {
+    margin-left: 1px;
+    margin-top: 10px;
+    height: 500px;
+    border: 1px solid #e4e6e9;
+}
+
+#weight {
+    margin-left: 1px;
+    margin-top: 10px;
+    height: 500px;
+    border: 1px solid #e4e6e9;
+}
+
+#module_count {
+    margin-left: 1px;
+    margin-top: 10px;
+    border: 1px solid #e4e6e9;
+}
+
+#fuse_checker {
+    margin-left: 1px;
+    margin-top: 10px;
+    border: 1px solid #e4e6e9;  
+}
+
+#qconfig {
+    margin-left: 1px;
+    margin-top: 10px;
+    border: 1px solid #e4e6e9;  
+}

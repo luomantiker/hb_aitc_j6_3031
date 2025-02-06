@@ -1,0 +1,3276 @@
+﻿ONNX Operator Name,Map Description & Graph Fusion Description,HBIR Operator Name,BPU Support Constraints
+Add,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.add(lhs, rhs, output_type=y)","hbir.add
+","{'hbir.add': {'lhs': ['{Type: int8, int16, int32, if type is int32, this hbir.add op must be fusible to a Conv op}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+And,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    # lhs = adaptor.operands[0].value.astype(np.int8)
+    # rhs = adaptor.operands[1].value.astype(np.int8)
+    return hbir.logical_and(lhs, rhs, output_type=y)","hbir.logical_and
+","{'hbir.logical_and': {'lhs': ['{Type: int8, int16, bool8}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Type: bool8}']}}"
+ArgMax,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, *, axis=0, keepdims=1
+):
+    return hbir.reduce_argmax(
+        x,
+        dims=[axis],
+        keepDim=bool(keepdims),
+        output_type=y,
+    )
+//opset12
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    axis=0,
+    keepdims=1,
+    select_last_index=0,
+):
+    assert (
+        select_last_index == 0
+    ), ""argmax exported via torch should have select_last_index set to false""
+    return hbir.reduce_argmax(
+        x,
+        dims=[axis],
+        keepDim=bool(keepdims),
+        output_type=y,
+    )","hbir.reduce_argmax
+","{'hbir.reduce_argmax': {'input': ['{Type: int8, int16}\n{Shape: [*]}\n{Dim: reduce axis dim size ∈ [1, 65535]}\n{Element : reduce Elements size ∈ [1, 65535]}'], 'output': ""{Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number}""}}"
+ArgMin,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, *, axis=0, keepdims=1
+):
+    return hbir.reduce_argmin(
+        x,
+        dims=[axis],
+        keepDim=bool(keepdims),
+        output_type=y,
+    )
+//opset12
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    axis=0,
+    keepdims=1,
+    select_last_index=0,
+):
+    assert (
+        select_last_index == 0
+    ), ""argmin exported via torch should have select_last_index set to false""
+    return hbir.reduce_argmin(
+        x,
+        dims=[axis],
+        keepDim=bool(keepdims),
+        output_type=y,
+    )","hbir.reduce_argmin
+","{'hbir.reduce_argmin': {'input': ['{Type: int8, int16}\n{Shape: [*]}\n{Dim: reduce axis dim size ∈ [1, 65535]}\n{Element : reduce Elements size ∈ [1, 65535]}'], 'output': ""{Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number}""}}"
+AveragePool,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    kernel_shape,
+    pads=[0, 0],
+    strides=[1],
+    auto_pad=""NOTSET"",
+    ceil_mode=0,
+    count_include_pad=0,
+):
+    if auto_pad != ""NOTSET"":
+        raise ValueError(
+            ""Operator AveragePool does not support attribute auto_pad. It is a deprecated attribute. ""
+        )
+    kernel_dim = len(kernel_shape)
+    if kernel_dim < 1 or kernel_dim > 2:
+        raise ValueError(
+            f""Operator AveragePool does not support kernel_dim {kernel_dim}""
+        )
+    dilations = [1]
+    if kernel_dim == 1:
+        x = hbir.transpose(x, [0, 2, 1])
+    elif kernel_dim == 2:
+        x = hbir.transpose(x, [0, 2, 3, 1])
+        if dilations == [1]:
+            dilations = dilations * kernel_dim
+        if strides == [1]:
+            strides = strides * kernel_dim
+        if pads == [0, 0]:
+            pads = pads * kernel_dim
+    # input trans: nchw->nhwc
+    # output trans: nhwc->nchw
+    x = hbir.avg_pool(
+        x, kernel_shape, strides, pads, dilation=dilations, ceilMode=bool(ceil_mode)
+    )
+
+    if kernel_dim == 1:
+        return hbir.transpose(x, [0, 2, 1], output_type=y)
+    return hbir.transpose(x, [0, 3, 1, 2], output_type=y)","hbir.transpose
+hbir.transpose
+hbir.avg_pool
+hbir.transpose
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.avg_pool': {'input': ['{Type: int8, int16}\n{Shape: [*,H,W,C] or [*,L,C]}'], 'output': ['{Same as input}'], 'kernel': ['{Shape: [KH,KW] or [KL]}\n{Dim: KH, KW, KL ∈ [1, 256], avgPool: KH*KW*bitWidth/8 &lt;= 24576, maxPool: KH*KW &lt;= 32768}'], 'stride': ['{Shape: [SH,SW] or [SL]}\n{Dim: SH, SW, SL ∈ [1, 256]}'], 'pad': ['{Shape: [PH_BEGIN,PW_BEGIN,PH_END,PW_END] or [PL_BEGIN,PL_END]}\n{PH_BEGIN,PW_BEGIN,PL_BEGIN,PH_END,PW_END,PL_END ∈ [-255, 256]}']}}"
+BatchNormalization,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    scale: mlir.Value,
+    bias: mlir.Value,
+    mean: mlir.Value,
+    var: mlir.Value,
+    *,
+    epsilon: float = 1e-05,
+    momentum: float = 0.9,
+):
+    input_len = len(adaptor.operands[0].type.shape)
+    axis = [i for i in range(input_len)]
+    permutes_c_last = axis[0:1] + axis[2:] + axis[1:2]
+    permutes_c_ahead = (
+        axis[0:1] + axis[input_len - 1 : input_len] + axis[1 : input_len - 1]
+    )
+    data = hbir.transpose(data, permutes_c_last)
+    data = hbir.batchnorm(
+        data, weight=scale, bias=bias, mean=mean, var=var, eps=epsilon
+    )
+    data = hbir.transpose(data, permutes_c_ahead, output_type=y)
+    return data
+//opset14
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    scale: mlir.Value,
+    bias: mlir.Value,
+    mean: mlir.Value,
+    var: mlir.Value,
+    *,
+    epsilon: float = 1e-05,
+    momentum: float = 0.9,
+    training_mode: int = 1,
+):
+    input_len = len(adaptor.operands[0].type.shape)
+    axis = [i for i in range(input_len)]
+    permutes_c_last = axis[0:1] + axis[2:] + axis[1:2]
+    permutes_c_ahead = (
+        axis[0:1] + axis[input_len - 1 : input_len] + axis[1 : input_len - 1]
+    )
+    data = hbir.transpose(data, permutes_c_last)
+    data = hbir.batchnorm(
+        data, weight=scale, bias=bias, mean=mean, var=var, eps=epsilon
+    )
+    data = hbir.transpose(data, permutes_c_ahead, output_type=y)
+    return data","hbir.transpose
+hbir.batchnorm
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.batchnorm': {'input': ['{Type: int8, int16}\n{Shape: [*,H,W,C]}'], 'mean': ['{Type: f32}\n{Shape: [C]}'], 'var': ['{Type: f32}\n{Shape: [C]}'], 'weight': ['{Type: f32}\n{Shape: [C]}'], 'bias': ['{Type: f32}\n{Shape: [C]}'], 'output': ['{Same as input}']}}"
+Cast,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, *, to):
+    return hbir.cast_type(x, output_type=y)","hbir.cast_type
+","{'hbir.cast_type': {'input': ['{Type: int8, int16, bool8}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Clip,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    max=3.4028234663852886e38,
+    min=-3.4028234663852886e38,
+):
+    return hbir.clip(x, min, max, output_type=y)
+//opset11
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, *args):
+    if len(args) == 1:
+        logging.info(""Input max and min missing, using default max and min."")
+        x = adaptor.operands[0].value
+        max = 3.4028234663852886e38
+        min = -3.4028234663852886e38
+    elif len(args) == 3:
+        x = adaptor.operands[0].value
+        min = float(adaptor.operands[1].value)
+        max = float(adaptor.operands[2].value)
+    else:
+        raise ValueError(
+            f""Operator Clip does not support input number given: {len(args)}""
+        )
+
+    return hbir.clip(x, min, max, output_type=y)","hbir.clip
+","{'hbir.clip': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Concat,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, *args, axis):
+    return hbir.concat(args, dim=axis, output_type=y)","hbir.concat
+","{'hbir.concat': {'input': ['{Arg Number: input number ∈ [1, 1024]}\n{Dim: all dims &lt; 131072 }\n{size &lt; 2G}'], 'output': ['{Same as input}']}}"
+Conv,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    w: mlir.Value,
+    b: Optional[mlir.Value] = None,
+    *,
+    dilations=(1, 1),
+    group=1,
+    kernel_shape,
+    pads=(0, 0, 0, 0),
+    strides=(1, 1),
+):
+    x = nchw_to_nhwc(x)
+    w = nchw_to_nhwc(w)
+    x = hbir.conv(x, w, strides, pads, dilations, group, bias=b)
+    x = nhwc_to_nchw(x)
+    return x","hbir.conv
+","{'hbir.conv': {'input': ['{--conv 1d--}\n{Type: int8, int16; input and weight cannot both be int16;}\n{Shape: [*,L,C]}\n{Dim: * ∈ [1, 4096]; L,C ∈ [1, 65536]}\n{--conv 2d--}\n{Type: int8, int16; input and weight cannot both be int16;}\n{Shape: [*,H,W,C]}\n{Dim: * ∈ [1, 4096]; H,W,C ∈ [1, 65536]}'], 'weight': ['{--conv 1d--}\n{Type: int8, int16; input and weight cannot both be int16}\n{Shape: [N,KL,C]}\n{Dim: C ∈ [1, 8192]; KL ∈ [1, 31]; N ∈ [1, 65536] if fout is the last layer of conv else [1, 8192]}\n{Size: KL × C ∈ [1, 65536]}\n{--conv 2d--}\n{Type: int8, int16; input and weight cannot both be int16}\n{Shape: [N,KH,KW,C]}\n{Dim: C ∈ [1, 8192]; KH,KW ∈ [1, 31]; N ∈ [1, 65536] if fout is the last layer of conv else [1, 8192]}\n{Size: KH × KW × C ∈ [1, 65536]}'], 'bias': ['{Type: f32}'], 'output': ['{--conv 1d--}\n{Type: int8, int16, int32}\n{Shape: [*,L,C]}\n{Dim: * ∈ [1, 4096]; L,C ∈ [1, 65536]}\n{--conv 2d--}\n{Type: int8, int16, int32}\n{Shape: [*,H,W,C]}\n{Dim: * ∈ [1, 4096]; H,W,C ∈ [1, 65536]}'], 'stride': ['{--conv 1d--}\n{Shape: [SL]}\n{Dim: SL ∈ [1, 256]; SL ∈ {1} if dilation &gt; 1}\n{--conv 2d--}\n{Shape: [SH,SW]}\n{Dim: SH,SW ∈ [1, 256]; SH,SW ∈ {1} if dilation &gt; 1}'], 'pad': ['{--conv 1d--}\n{Shape: [P_left,P_right]}\n{Dim: P_left,P_right ∈ [-L/2, 256]}\n{--conv 2d--}\n{Shape: [P_top,P_left,P_bottom,P_right]}\n{Dim: P_top,P_bottom ∈ [-H/2, 256], P_left,P_right ∈ [-W/2, 256]}'], 'groupNum': ['{fin.c is divisible by group number}'], 'dilation': ['{--conv 1d--}\n{Shape: [DL]}\n{Dim: DL ∈ [1, 18]}\n{--conv 2d--}\n{Shape: [DH,DW]}\n{Dim: DH,DW ∈ [1, 18]}'], 'others': ['{--conv 1d--}\n{Stride only support odd number and 2 when conv is a int16 depthwise conv}\n{For each group, fin.c ∈ [1, 8192], KL × fin.c ∈ [1, 65535], fin.c = C when group = 1}\n{--conv 2d--}\n{Stride only support odd number and 2 when conv is a int16 depthwise conv}\n{For each group, fin.c ∈ [1, 8192], KH × KW × fin.c ∈ [1, 65535], fin.c = C when group = 1}']}}"
+ConvTranspose,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    w: mlir.Value,
+    b: Optional[mlir.Value] = None,
+    *,
+    auto_pad=""NOTSET"",
+    dilations=(1, 1),
+    group=1,
+    kernel_shape=None,
+    output_padding=None,
+    output_shape=None,
+    pads=(0, 0, 0, 0),
+    strides=(1, 1),
+):
+    auto_pad = auto_pad if type(auto_pad) == str else auto_pad.decode()
+    if auto_pad != ""NOTSET"":
+        raise ValueError(
+            f""Operator ConvTranspose does not support auto_pad with value: {auto_pad}""
+        )
+
+    if output_padding is not None:
+        for idx, p in enumerate(output_padding):
+            pads[(len(pads) // 2) + idx] -= p
+
+    kernel_dim = len(kernel_shape)
+    if (kernel_dim != 1) and (kernel_dim != 2) and (kernel_dim != 3):
+        raise ValueError(
+            f""Only support ConvTranspose 1D, ConvTranspose 2D and 3d Operator, got kernel_dim={kernel_dim}""
+        )
+    # input trans: nc(d)hw->n(d)hwc
+    # output trans: n(d)hwc->nc(d)hw
+    x = nchw_to_nhwc(x)
+    w = nchw_to_nhwc(w)
+    x = hbir.convtranspose(
+        x,
+        weight=w,
+        stride=strides,
+        pad=pads,
+        dilation=dilations,
+        groupNum=group,
+        bias=b,
+        illegalWeight=True,
+    )
+    x = nhwc_to_nchw(x)
+    return x","hbir.convtranspose
+","{'hbir.convtranspose': {'input': ['{Type: int8, int16; input and weight cannot both be int16}\n{1d_Shape: [*,W,C]}\n{1d_Dim: * ∈ [1, 128]; W ∈ [1, 65536]; C ∈ [1, 2048]}\n{2d_Shape: [*,H,W,C]}\n{2d_Dim: * ∈ [1, 128]; H,W ∈ [1, 65536]; C ∈ [1, 2048]}'], 'weight': ['{Type: int8, int16; input and weight cannot both be int16}\n{1d_Shape: [N,KW,C]}\n{1d_Dim: N,C ∈ [1, 2048]; KW ∈ [1, 14]}\n{1d_Size: KW × C ∈ [1, 65536]}\n{2d_Shape: [N,KH,KW,C]}\n{2d_Dim: N,C ∈ [1, 2048]; KH,KW ∈ [1, 14]; KH,KW cannot both be 1}\n{2d_Size: KH × KW × C ∈ [1, 65536]}'], 'bias': ['{Type: f32}'], 'output': ['{Same as input, the type additionally supports int32}'], 'stride': ['{1d_Shape: [SW]}\n{1d_Dim: SW ∈ [1, 14];}\n{2d_Shape: [SH,SW]}\n{2d_Dim: SH,SW ∈ [1, 14];}'], 'pad': ['{1d_Shape: [P_left,P_bottom]}\n{1d_Dim: P_left,P_bottom ∈ [0, 256]}\n{2d_Shape: [P_top,P_left,P_bottom,P_right]}\n{2d_Dim: P_top,P_left,P_bottom,P_right ∈ [0, 256]}'], 'dilation': ['{1d_Shape: [DW]}\n{1d_Dim: DW ∈ {1}}\n{2d_Shape: [DH,DW]}\n{2d_Dim: DH,DW ∈ {1}}']}}"
+DepthToSpace,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    blocksize,
+):
+    input_dim = len(adaptor.operands[0].type.shape)
+    if input_dim != 4:
+        raise ValueError(
+            f""Operator DepthToSpace does not support input_dim not euqal to 4, got {input_dim}""
+        )
+    n, c, h, w = adaptor.operands[0].type.shape
+    if c % (blocksize**2) != 0:
+        raise ValueError(
+            ""The channel of the input shape must be divisible by the square of blocksize.""
+        )
+    x = hbir.reshape(x, (n, blocksize, blocksize, c // (blocksize**2), h, w))
+    x = hbir.transpose(x, [0, 3, 4, 1, 5, 2])
+    return hbir.reshape(
+        x,
+        (n, c // (blocksize**2), h * blocksize, w * blocksize),
+        output_type=y,
+    )","hbir.reshape
+hbir.transpose
+hbir.reshape
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+Div,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, output_type: mlir.Type, a: mlir.Value, b: mlir.Value
+):
+    return hbir.div(a, b, output_type=output_type)","hbir.div
+",{'hbir.div': 'Unsupported'}
+ELU,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, *, alpha: float = 1.0
+):
+    return hbir.elu(x, alpha=alpha, output_type=y)","hbir.elu
+",{'hbir.elu': 'Unsupported'}
+Equal,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.equal(lhs, rhs, output_type=y)","hbir.equal
+","{'hbir.equal': {'lhs': ['{Type: int8, int16, bool8}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Type: bool8}']}}"
+Exp,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+):
+    return hbir.exp(
+        x,
+        output_type=y,
+    )","hbir.exp
+","{'hbir.exp': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Expand,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, data: mlir.Value, shape: mlir.Value
+):
+    original_shape = adaptor.operands[0].type.shape
+    new_shape = adaptor.operands[1].value
+    original_shape = [
+        1,
+    ] * (len(new_shape) - len(original_shape)) + original_shape
+
+    repeat_list = []
+    for i in range(len(original_shape)):
+        if (
+            original_shape[i] != new_shape[i]
+            and original_shape[i] != 1
+            and new_shape[i] != 1
+        ):
+            raise ValueError(
+                f""Operator Expand does not support this shape. original_shape: {original_shape}, new_shape: {new_shape}""
+            )
+        if original_shape[i] == 1:
+            repeat_list.append(new_shape[i])
+        else:
+            repeat_list.append(1)
+    data = hbir.reshape(
+        data,
+        original_shape,
+        output_type=mlir.UnrankedTensorType.get(mlir.ShapedType(y).element_type),
+    )
+    return hbir.tile(data, repeat_list, output_type=y)","hbir.reshape
+hbir.tile
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.tile': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+EyeLike,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    input: mlir.Value,
+    *,
+    dtype: Optional[int] = None,
+    k: int = 0,
+):
+    input_shape = adaptor.operands[0].type.shape
+    if len(input_shape) != 2:
+        raise ValueError(
+            ""Input tensor must be 2D. Received shape: {}"".format(input_shape)
+        )
+    row = input_shape[0]
+    col = input_shape[1]
+    numpy_type_dict = {
+        ""i8"": np.uint8,
+        ""i16"": np.uint16,
+        ""i32"": np.uint32,
+        ""si8"": np.int8,
+        ""si16"": np.int16,
+        ""si32"": np.int32,
+        ""si64"": np.int64,
+        ""f16"": np.float16,
+        ""f32"": np.float32,
+        # ""f64"": np.float64, do not support f64
+        # ""bool"": np.bool, do not support bool
+    }
+    onnx_type_to_numpy_type_dict = {
+        1: np.float32,
+        2: np.uint8,
+        3: np.int8,
+        4: np.uint16,
+        5: np.int16,
+        6: np.int32,
+        7: np.int64,
+        10: np.float16,
+        11: np.double,
+        12: np.uint32,
+        13: np.uint64,
+    }
+    for key in numpy_type_dict:
+        if key in str(input.type):
+            x_base_type = numpy_type_dict[key]
+    if dtype in onnx_type_to_numpy_type_dict:
+        np_dtype = onnx_type_to_numpy_type_dict[dtype]
+    else:
+        np_dtype = x_base_type if x_base_type else np.float32
+
+    output_matrix = np.eye(N=row, M=col, k=k, dtype=np_dtype)
+    return hbir.constant(values=output_matrix, output_type=y)","hbir.constant
+",{'hbir.constant': {'input/output': 'No limits'}}
+Flatten,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    *,
+    axis=1,
+):
+    original_shape = adaptor.operands[0].type.shape
+    new_shape = [1, 1]
+    for i in range(axis):
+        new_shape[0] *= original_shape[i]
+    for i in range(axis, len(original_shape)):
+        new_shape[1] *= original_shape[i]
+    return hbir.reshape(data, shape=new_shape, output_type=y)
+//opset18
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    *,
+    axis=1,
+):
+    original_shape = adaptor.operands[0].type.shape
+    total_elem_num = np.prod(original_shape).astype(int)
+    new_shape = [1, total_elem_num]
+    if axis != 0:
+        new_shape[0] = np.prod(original_shape[:axis]).astype(int)
+        new_shape[1] = int(total_elem_num / new_shape[0])
+
+    return hbir.reshape(data, shape=new_shape, output_type=y)","hbir.reshape
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+Gather,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    indices: mlir.Value,
+    axis=0,
+):
+    return hbir.index(x, index=indices, dim=axis, output_type=y)
+//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    indices: mlir.Value,
+    axis=0,
+):
+    return hbir.index(x, index=indices, dim=axis, output_type=y)
+//opset13
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    indices: mlir.Value,
+    axis=0,
+):
+    return hbir.index(x, index=indices, dim=axis, output_type=y)","hbir.index
+","{'hbir.index': {'input': ['{Type: int8, int16, int32, float16, float32}\n{Shape: [*]}\n{Dim: select dim ∈ [1, 32768]}\n{if input is not 4-D tensor, input will transpose to  [N, warpH, warpW, C], warpH is reduce mul from shape[1] to shape[dim-1], warpW is the size of the select dim }\n{if input is 4-D tensor but select dim is not dim2, input will reshape to  [N, warpH, warpW, C], warpH is the size of the dim2, warpW is the size of the select dim }\n{warpH, warpW ∈ [1, 4096]. If input type is int8, warpH, warpW ∈ [1, 32768]. warpH and warpW cannot both be greater than 4096 at the same time.\n      }'], 'index': ['{Type: int8, int16, int32, int64}\n{Shape: [*] index value should not be larger than 32768}'], 'output': ['{Same as input except Dim constraints}']}}"
+GatherElements,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    *,
+    axis=0,
+):
+    return hbir.gather_elements(data, indices, dim=axis)
+//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    *,
+    axis=0,
+):
+    return hbir.gather_elements(data, indices, dim=axis)
+//opset13
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    *,
+    axis=0,
+):
+    return hbir.gather_elements(data, indices, dim=axis)","hbir.gather_elements
+","{'hbir.gather_elements': {'input': ['{Type: int8, int16, int32, float16, float32}\n{Shape: [*]}\n{Dim: select dim ∈ [1, 32768]}\n{input shape will legalize at least rank 3, the new shape will be [*, H, W, C]}\n{The legalization rules are as follows: }\n<ul>\n{rank = 1: expand shape [W] -&gt; [1, W, 1], dim+1}\n{rank = 2: expand shape [H, W] -&gt; [H, W, 1]}\n{rank = 3: }\n{\xa0 a. dim = 0 or dim = 1, no legalization}\n{\xa0 b. dim = 2 expand shape [K, H, W] -&gt; [K, H, W, 1].}\n{rank &gt; 3: }\n{\xa0 a. dim = rank-1, reshape [*, K, H, W] -&gt; [N, H, W, 1], dim - (rank-3)}\n{\xa0 b. dim = rank-2 or dim = rank-3, reshape [*, H, W, C] -&gt; [N, H, W, C], dim - (rank-4).}\n</ul>\n{If the input rank is greater than 3, dim should be the last three dimensions.}\n{H, W ∈ [1, 4096]. If input type is int8, H, W ∈ [1, 32768]. H and W cannot both be greater than 4096 at the same time.\n      }'], 'indices': ['{Type: int8, int16, int32, int64}\n{Shape: [*] indices value should not be larger than 32768}\n{indices is legalized in the same way as input and should be broadcast on C channel. [..., C0] = [..., C1] = [..., Cn]}\n{Except H, W, all other dimensions must be equal to input}'], 'output': ['{Same as input except Dim constraints}']}}"
+GatherND,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    *,
+    batchDims=0,
+):
+    return hbir.gather_nd(data, indices, batchDim=batchDims, output_type=y)
+//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    *,
+    batchDims=0,
+):
+    return hbir.gather_nd(data, indices, batchDim=batchDims, output_type=y)
+//opset12
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    *,
+    batchDims=0,
+):
+    return hbir.gather_nd(data, indices, batchDim=batchDims, output_type=y)
+//opset13
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    *,
+    batchDims=0,
+):
+    return hbir.gather_nd(data, indices, batchDim=batchDims, output_type=y)","hbir.gather_nd
+",{'hbir.gather_nd': 'Unsupported'}
+Gemm,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    input_a: mlir.Value,
+    input_b: mlir.Value,
+    input_c: mlir.Value,
+    *,
+    alpha=1.0,
+    beta=1.0,
+    transA=0,
+    transB=0,
+):
+    assert len(adaptor.operands[0].type.shape) == 2
+    assert len(adaptor.operands[1].type.shape) == 2
+    input_a = adaptor.operands[0].value
+    input_b = adaptor.operands[1].value
+
+    if transA:
+        input_a = hbir.transpose(input_a, (1, 0))
+    if transB:
+        input_b = hbir.transpose(input_b, (1, 0))
+
+    # res = alpha * (a * b) + beta * c
+    res = hbir.mul(alpha, hbir.matmul(input_a, input_b))
+    res = hbir.add(res, hbir.mul(beta, input_c), output_type=y)
+    return res
+//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    input_a: mlir.Value,
+    input_b: mlir.Value,
+    *args,
+    alpha=1.0,
+    beta=1.0,
+    transA=0,
+    transB=0,
+):
+    assert len(adaptor.operands[0].type.shape) == 2
+    assert len(adaptor.operands[1].type.shape) == 2
+    input_a = adaptor.operands[0].value
+    input_b = adaptor.operands[1].value
+
+    if transA:
+        input_a = hbir.transpose(input_a, (1, 0))
+    if transB:
+        input_b = hbir.transpose(input_b, (1, 0))
+
+    # res = alpha * (a * b) + beta * c
+    res = hbir.mul(
+        alpha, hbir.matmul(input_a, input_b, output_type=y), output_type=y
+    )
+    if args:
+        res = hbir.add(res, hbir.mul(beta, args[0]), output_type=y)
+    return res","hbir.transpose
+hbir.transpose
+hbir.mul
+hbir.matmul
+hbir.add
+hbir.mul
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.mul': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}, 'hbir.matmul': {'lhs': ['{Type: int8, int16; lhs and rhs cannot both be int16}\n{Shape: [*,M,C]}\n{Dim: * ∈ [1, 4096], M,C ∈ [1, 8192]}'], 'rhs': ['{Type: int8, int16; lhs and rhs cannot both be int16}\n{Shape: [*,C,N]}\n{Dim: * ∈ [1, 4096]; C,N ∈ [1, 8192]}'], 'output': ['{Type: int8, int16, int32}\n{Shape: [*,M,N]}\n{Other constraints: Same as lhs}']}, 'hbir.add': {'lhs': ['{Type: int8, int16, int32, if type is int32, this hbir.add op must be fusible to a Conv op}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+GlobalAveragePool,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.reduce_mean(x, dims=[-2, -1], keepDim=True, output_type=y)","hbir.reduce_mean
+","{'hbir.reduce_mean': {'input': ['{Type: int8, int16}\n{Shape: [*]}\n{Dim: reduce axis dim size ∈ [1, 65535]}\n{Element : reduce Elements size ∈ [1, 65535]}'], 'output': ""{Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number}""}}"
+GlobalMaxPool,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    # do not use transpose, transpose dims directly
+    input_shape = adaptor.operands[0].type.shape
+    input_rank = len(input_shape)
+    if input_rank < 3:
+        raise ValueError(""input size can not be less than 3"")
+    dims = []
+    for i in range(input_rank - 2):
+        dims.append(-(i + 1))
+    return hbir.reduce_max(x, dims=dims, keepDim=True, output_type=y)","hbir.reduce_max
+","{'hbir.reduce_max': {'input': ['{Type: int8, int16}\n{Shape: [*]}\n{Dim: reduce axis dim size ∈ [1, 65535]}\n{Element : reduce Elements size ∈ [1, 65535]}'], 'output': ""{Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number}""}}"
+Greater,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.greater(lhs, rhs, output_type=y)","hbir.greater
+","{'hbir.greater': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Type: bool8}']}}"
+Identity,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.identity(x)","hbir.identity
+",{'hbir.identity': 'Unsupported'}
+InstanceNormalization,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    scale: mlir.Value,
+    bias: mlir.Value,
+    *,
+    epsilon=1e-05,
+):
+    input_shape = adaptor.operands[0].type.shape
+    dim = list(range(1, len(input_shape) - 1))
+    x = nchw_to_nhwc(x)
+    x = hbir.layernorm(x, dims=dim, eps=epsilon)
+    x = hbir.mul(x, scale)
+    x = hbir.add(x, bias)
+    x = nhwc_to_nchw(x)
+    return x","hbir.layernorm
+hbir.mul
+hbir.add
+","{'hbir.layernorm': 'Unsupported', 'hbir.mul': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}, 'hbir.add': {'lhs': ['{Type: int8, int16, int32, if type is int32, this hbir.add op must be fusible to a Conv op}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+LeakyReLu,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, *, alpha: float = 0.01
+):
+    return hbir.leaky_relu(x, slop=alpha, output_type=y)","hbir.leaky_relu
+","{'hbir.leaky_relu': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Less,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.less(lhs, rhs, output_type=y)","hbir.less
+","{'hbir.less': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Type: bool8}']}}"
+LogSoftmax,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    *,
+    axis=-1,
+):
+    return hbir.log_softmax(data, dim=axis, output_type=y)","hbir.log_softmax
+",{'hbir.log_softmax': 'Unsupported'}
+MatMul,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, output_type: mlir.Type, a: mlir.Value, b: mlir.Value
+):
+    lhs_shape = np.array(adaptor.operands[0].type.shape)
+    rhs_shape = np.array(adaptor.operands[0].type.shape)
+    lhs_rank = len(lhs_shape)
+    rhs_rank = len(rhs_shape)
+    if lhs_rank == 1 and rhs_rank == 1:
+        # the output of 1D matmul is a scalar, the out_shape is none, so add reshape
+        out_shape = adaptor.results[0].type.shape
+        return hbir.reshape(hbir.matmul(a, b), out_shape, output_type=output_type)
+    else:
+        return hbir.matmul(a, b, output_type=output_type)","hbir.reshape
+hbir.matmul
+hbir.matmul
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.matmul': {'lhs': ['{Type: int8, int16; lhs and rhs cannot both be int16}\n{Shape: [*,M,C]}\n{Dim: * ∈ [1, 4096], M,C ∈ [1, 8192]}'], 'rhs': ['{Type: int8, int16; lhs and rhs cannot both be int16}\n{Shape: [*,C,N]}\n{Dim: * ∈ [1, 4096]; C,N ∈ [1, 8192]}'], 'output': ['{Type: int8, int16, int32}\n{Shape: [*,M,N]}\n{Other constraints: Same as lhs}']}}"
+Max,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    lhs: mlir.Value,
+    rhs: mlir.Value,
+    *args,
+):
+    if len(args) != 0:
+        raise ValueError(f""Operator Max expects 2 inputs, but got {len(args)+2}"")
+    return hbir.max(lhs, rhs, output_type=y)","hbir.max
+","{'hbir.max': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+MaxPool,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    auto_pad=""NOTSET"",
+    ceil_mode=0,
+    dilations=[1],
+    kernel_shape,
+    pads=[0, 0],
+    storage_order=0,
+    strides=[1],
+):
+    # auto_pad is a DEPRECATED attribute, so it is ignored here.
+    # onnx maxpool supports a second output, and it is the index of the first output. storage_order is used to control whether it is row-major order or column-major order. Since second output is not supported, so attribute storage_order is ignored here.
+    assert len(adaptor.results) == 1
+    kernel_dim = len(kernel_shape)
+    if kernel_dim < 1 or kernel_dim > 3:
+        raise ValueError(
+            f""Operator MaxPool does not support kernel_dim {kernel_dim}""
+        )
+    if kernel_dim == 1:
+        x = hbir.transpose(x, [0, 2, 1])
+    elif kernel_dim == 2:
+        x = hbir.transpose(x, [0, 2, 3, 1])
+        if dilations == [1]:
+            dilations = dilations * kernel_dim
+        if strides == [1]:
+            strides = strides * kernel_dim
+        if pads == [0, 0]:
+            pads = pads * kernel_dim
+    elif kernel_dim == 3:
+        x = hbir.transpose(x, [0, 2, 3, 4, 1])
+        if dilations == [1]:
+            dilations = dilations * kernel_dim
+        if strides == [1]:
+            strides = strides * kernel_dim
+        if pads == [0, 0]:
+            pads = pads * kernel_dim
+    x = hbir.max_pool(
+        x,
+        kernel=kernel_shape,
+        stride=strides,
+        pad=pads,
+        dilation=dilations,
+        ceilMode=bool(ceil_mode),
+    )
+    if kernel_dim == 1:
+        return hbir.transpose(x, [0, 2, 1], output_type=y)
+    elif kernel_dim == 3:
+        return hbir.transpose(x, [0, 4, 1, 2, 3], output_type=y)
+    return hbir.transpose(x, [0, 3, 1, 2], output_type=y)","hbir.transpose
+hbir.transpose
+hbir.transpose
+hbir.max_pool
+hbir.transpose
+hbir.transpose
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.max_pool': {'input': ['{Type: int8, int16}\n{Shape: [*,H,W,C] or [*,L,C]}'], 'output': ['{Same as input}'], 'kernel': ['{Shape: [KH,KW] or [KL]}\n{Dim: KH, KW, KL ∈ [1, 256], avgPool: KH*KW*bitWidth/8 &lt;= 24576, maxPool: KH*KW &lt;= 32768}'], 'stride': ['{Shape: [SH,SW] or [SL]}\n{Dim: SH, SW, SL ∈ [1, 256]}'], 'pad': ['{Shape: [PH_BEGIN,PW_BEGIN,PH_END,PW_END] or [PL_BEGIN,PL_END]}\n{PH_BEGIN,PW_BEGIN,PL_BEGIN,PH_END,PW_END,PL_END ∈ [-255, 256]}']}}"
+Min,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    lhs: mlir.Value,
+    rhs: mlir.Value,
+    *args,
+):
+    if len(args) != 0:
+        raise ValueError(f""Operator Min expects 2 inputs, but got {len(args)+2}"")
+    return hbir.min(lhs, rhs, output_type=y)","hbir.min
+","{'hbir.min': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+Mul,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.mul(lhs, rhs, output_type=y)","hbir.mul
+","{'hbir.mul': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+Neg,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.neg(x)
+//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+):
+    return hbir.neg(x, output_type=y)","hbir.neg
+","{'hbir.neg': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+NonZero,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.nonzero(x)","hbir.nonzero
+",{'hbir.nonzero': 'Unsupported'}
+Or,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    # lhs = adaptor.operands[0].value.astype(np.int8)
+    # rhs = adaptor.operands[1].value.astype(np.int8)
+    return hbir.logical_or(lhs, rhs, output_type=y)","hbir.logical_or
+","{'hbir.logical_or': {'lhs': ['{Type: int8, int16, bool8}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Type: bool8}']}}"
+PRelu,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, data: mlir.Value, slope: mlir.Value
+):
+    return hbir.prelu(data, slope=slope, output_type=y)","hbir.prelu
+","{'hbir.prelu': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+Pad,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    pads,
+    mode=""constant"",
+    value=0.0,
+):
+    pad_length = len(pads)
+    if mlir.IntegerType.isinstance(y.element_type):
+        value = int(value)
+    else:
+        value = float(value)
+    return hbir.pad(
+        x,
+        begin=pads[: pad_length // 2],
+        end=pads[pad_length // 2 :],
+        padValue=value,
+        output_type=y,
+    )
+//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    pads: mlir.Value,
+    value: mlir.Value = None,
+    *,
+    mode=""constant"",
+):
+    pads = adaptor.operands[1].value
+    value = 0
+    if len(adaptor.operands) == 3:
+        value = adaptor.operands[2].value
+    pad_length = len(pads)
+    if not mlir.IntegerType.isinstance(y.element_type):
+        value = float(value)
+    else:
+        value = int(value)
+    return hbir.pad(
+        x,
+        begin=pads[: pad_length // 2],
+        end=pads[pad_length // 2 :],
+        padValue=value,
+        output_type=y,
+    )","hbir.pad
+","{'hbir.pad': {'input': ""{Type: int64, uint64 and f64 are not supported when expansionMode is 'constant' else no constraints}\n{Dim: all dims &lt; 737280 when expansionMode is not 'constant' else no constraints}"", 'output': ['{Same as input}'], 'begin/end': ['{Value should be in range [1, 1024]}']}}"
+Pow,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.pow(lhs, rhs, output_type=y)","hbir.pow
+",{'hbir.pow': 'Unsupported'}
+Reciprocal,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+):
+    return hbir.reciprocal(
+        x,
+        output_type=y,
+    )","hbir.reciprocal
+","{'hbir.reciprocal': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+ReduceMax,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    axes=None,
+    keepdims=1,
+):
+    if axes is None:
+        axes = list(range(mlir.ShapedType(x.type).rank))
+    return hbir.reduce_max(
+        x,
+        dims=axes,
+        keepDim=bool(keepdims),
+        output_type=y,
+    )
+//opset18
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *args,
+    keepdims=1,
+    noop_with_empty_axes=0,
+):
+    axes = None
+    if len(args) != 0:
+        axes = adaptor.operands[1].value.tolist()
+
+    if axes is None:
+        axes = []
+        if noop_with_empty_axes == 0:
+            # Reduce all axes
+            axes = list(range(mlir.ShapedType(x.type).rank))
+        else:
+            # act like identity operands, here convert to reshape
+            return hbir.reshape(x, adaptor.operands[0].type.shape)
+
+    return self.mlir_op_func(x, dims=axes, keepDim=bool(keepdims), output_type=y)","hbir.reduce_max
+hbir.reshape
+","{'hbir.reduce_max': {'input': ['{Type: int8, int16}\n{Shape: [*]}\n{Dim: reduce axis dim size ∈ [1, 65535]}\n{Element : reduce Elements size ∈ [1, 65535]}'], 'output': ""{Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number}""}, 'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+ReduceMean,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    axes=None,
+    keepdims=1,
+):
+    if axes is None:
+        axes = list(range(mlir.ShapedType(x.type).rank))
+    return hbir.reduce_mean(x, dims=axes, keepDim=bool(keepdims), output_type=y)
+//opset18
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *args,
+    keepdims=1,
+    noop_with_empty_axes=0,
+):
+    axes = None
+    if len(args) != 0:
+        axes = adaptor.operands[1].value.tolist()
+
+    if axes is None:
+        axes = []
+        if noop_with_empty_axes == 0:
+            # Reduce all axes
+            axes = list(range(mlir.ShapedType(x.type).rank))
+        else:
+            # act like identity operands, here convert to reshape
+            return hbir.reshape(x, adaptor.operands[0].type.shape)
+
+    return self.mlir_op_func(x, dims=axes, keepDim=bool(keepdims), output_type=y)","hbir.reduce_mean
+hbir.reshape
+","{'hbir.reduce_mean': {'input': ['{Type: int8, int16}\n{Shape: [*]}\n{Dim: reduce axis dim size ∈ [1, 65535]}\n{Element : reduce Elements size ∈ [1, 65535]}'], 'output': ""{Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number}""}, 'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+ReduceMin,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    axes=None,
+    keepdims=1,
+):
+    if axes is None:
+        axes = list(range(mlir.ShapedType(x.type).rank))
+    return hbir.reduce_min(
+        x,
+        dims=axes,
+        keepDim=bool(keepdims),
+        output_type=y,
+    )
+//opset18
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *args,
+    keepdims=1,
+    noop_with_empty_axes=0,
+):
+    axes = None
+    if len(args) != 0:
+        axes = adaptor.operands[1].value.tolist()
+
+    if axes is None:
+        axes = []
+        if noop_with_empty_axes == 0:
+            # Reduce all axes
+            axes = list(range(mlir.ShapedType(x.type).rank))
+        else:
+            # act like identity operands, here convert to reshape
+            return hbir.reshape(x, adaptor.operands[0].type.shape)
+
+    return self.mlir_op_func(x, dims=axes, keepDim=bool(keepdims), output_type=y)","hbir.reduce_min
+hbir.reshape
+","{'hbir.reduce_min': {'input': ['{Type: int8, int16}\n{Shape: [*]}\n{Dim: reduce axis dim size ∈ [1, 65535]}\n{Element : reduce Elements size ∈ [1, 65535]}'], 'output': ""{Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number}""}, 'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+ReduceSum,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    axes=None,
+    keepdims=1,
+):
+    if axes is None:
+        axes = list(range(mlir.ShapedType(x.type).rank))
+    return hbir.reduce_sum(
+        x,
+        dims=axes,
+        keepDim=bool(keepdims),
+        output_type=y,
+    )
+//opset13
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    axes=None,
+    *args,
+    keepdims=1,
+    noop_with_empty_axes=0,
+):
+    axes = adaptor.operands[1].value.tolist() if axes is not None else None
+
+    if axes is None:
+        if noop_with_empty_axes == 0:
+            # Reduce all axes
+            axes = list(range(mlir.ShapedType(x.type).rank))
+        else:
+            # act like identity operands, here convert to reshape
+            return hbir.reshape(x, adaptor.operands[0].type.shape)
+
+    return hbir.reduce_sum(
+        x,
+        dims=axes,
+        keepDim=bool(keepdims),
+        output_type=y,
+    )","hbir.reduce_sum
+hbir.reshape
+","{'hbir.reduce_sum': {'input': ['{Type: int8, int16}\n{Shape: [*]}\n{Dim: reduce axis dim size ∈ [1, 65535]}\n{Element : reduce Elements size ∈ [1, 65535]}'], 'output': ""{Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number}""}, 'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+Reshape,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, shape: mlir.Value
+):
+    out_shape = adaptor.results[0].type.shape
+    return hbir.reshape(x, out_shape)
+//opset18
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    shape: mlir.Value,
+    *,
+    allowzero=0,
+):
+    input_shape = adaptor.operands[0].type.shape
+    out_shape = adaptor.operands[1].value
+    new_shape = np.copy(out_shape)
+    if allowzero == 0:
+        zeros_index = np.where(out_shape == 0)
+        new_shape[zeros_index] = np.array(object=input_shape)[zeros_index]
+    return hbir.reshape(x, shape=new_shape)","hbir.reshape
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+Scatter (deprecated),"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    updates: mlir.Value,
+    axis: int,
+):
+    return hbir.scatter_elements(data, indices, updates, axis, output_type=y)","hbir.scatter_elements
+",{'hbir.scatter_elements': 'Unsupported'}
+Slice,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    starts: mlir.Value,
+    ends: mlir.Value,
+    axes: Optional[mlir.Value] = None,
+    steps: Optional[mlir.Value] = None,
+):
+    # case0: process dynamic slice or attr do not has static value
+    # 1. has dynamic tensor
+    input_has_dynamic_dim = (
+        has_dynamic_dim(data) or has_dynamic_dim(starts) or has_dynamic_dim(ends)
+    )
+    # 2. attr do not has static value
+    if not isinstance(adaptor.operands[1].value, np.ndarray):
+        input_has_dynamic_dim = True
+    if not isinstance(adaptor.operands[2].value, np.ndarray):
+        input_has_dynamic_dim = True
+    if axes is not None:
+        if has_dynamic_dim(axes):
+            input_has_dynamic_dim = True
+        if not isinstance(adaptor.operands[3].value, np.ndarray):
+            input_has_dynamic_dim = True
+    if steps is not None:
+        if has_dynamic_dim(steps):
+            input_has_dynamic_dim = True
+        if not isinstance(adaptor.operands[4].value, np.ndarray):
+            input_has_dynamic_dim = True
+
+    # if has no static value
+    if (adaptor.operands[0].value is None) or (adaptor.operands[1].value is None):
+        input_has_dynamic_dim = True
+    if input_has_dynamic_dim:
+        starts_size = adaptor.operands[1].type.shape[0]
+        axes = get_value_or_create_const(
+            np.array([i for i in range(starts_size)]) if axes is None else axes
+        )
+        steps = get_value_or_create_const(
+            np.ones(starts_size, dtype=np.int64) if steps is None else steps
+        )
+        return hbir.dynamic_slice(data, starts, ends, axes, steps)
+
+    # case1: process normal slice, use hbir.slice
+    input_shape = adaptor.operands[0].type.shape
+    input_rank = len(input_shape)
+    starts = adaptor.operands[1].value
+    ends = adaptor.operands[2].value
+    steps = (
+        np.ones(input_rank, dtype=np.int64)
+        if steps is None
+        else (
+            adaptor.operands[3].value if axes is None else adaptor.operands[4].value
+        )
+    )
+    axes = (
+        [i for i in range(input_rank)]
+        if axes is None
+        else adaptor.operands[3].value
+    )
+
+    assert len(starts) == len(
+        ends
+    ), ""Incompatible attributes starts and ends for Slice.""
+
+    new_start = np.zeros(input_rank, dtype=np.int64)  # start from zero
+    new_end = np.array(input_shape)  # end with original shape limit
+    new_step = np.ones(input_rank, dtype=np.int64)  # step default 1
+    if len(starts) == len(axes):
+        for idx, axis in enumerate(axes):
+            new_start[axis] = starts[idx]
+            new_end[axis] = ends[idx]
+            new_step[axis] = steps[idx]
+    elif len(starts) == 1:
+        for index in range(input_rank):
+            if index in axes:
+                new_start[index] = starts[0]
+                new_end[index] = ends[0]
+                new_step[index] = steps[0]
+    else:
+        raise ValueError(""Incompatible attributes starts and axes for Slice."")
+
+    return hbir.slice(
+        data, begin=new_start, end=new_end, step=new_step, output_type=y
+    )
+//opset10
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    starts: mlir.Value,
+    ends: mlir.Value,
+    axes: Optional[mlir.Value] = None,
+    steps: Optional[mlir.Value] = None,
+):
+    # case0: process dynamic slice or attr do not has static value
+    # 1. has dynamic tensor
+    input_has_dynamic_dim = (
+        has_dynamic_dim(data) or has_dynamic_dim(starts) or has_dynamic_dim(ends)
+    )
+    # 2. attr do not has static value
+    if not isinstance(adaptor.operands[1].value, np.ndarray):
+        input_has_dynamic_dim = True
+    if not isinstance(adaptor.operands[2].value, np.ndarray):
+        input_has_dynamic_dim = True
+    if axes is not None:
+        if has_dynamic_dim(axes):
+            input_has_dynamic_dim = True
+        if not isinstance(adaptor.operands[3].value, np.ndarray):
+            input_has_dynamic_dim = True
+    if steps is not None:
+        if has_dynamic_dim(steps):
+            input_has_dynamic_dim = True
+        if not isinstance(adaptor.operands[4].value, np.ndarray):
+            input_has_dynamic_dim = True
+
+    # if has no static value
+    if (adaptor.operands[0].value is None) or (adaptor.operands[1].value is None):
+        input_has_dynamic_dim = True
+    if input_has_dynamic_dim:
+        starts_size = adaptor.operands[1].type.shape[0]
+        axes = get_value_or_create_const(
+            np.array([i for i in range(starts_size)]) if axes is None else axes
+        )
+        steps = get_value_or_create_const(
+            np.ones(starts_size, dtype=np.int64) if steps is None else steps
+        )
+        return hbir.dynamic_slice(data, starts, ends, axes, steps)
+
+    # case1: process normal slice, use hbir.slice
+    input_shape = adaptor.operands[0].type.shape
+    input_rank = len(input_shape)
+    starts = adaptor.operands[1].value
+    ends = adaptor.operands[2].value
+    steps = (
+        np.ones(input_rank, dtype=np.int64)
+        if steps is None
+        else adaptor.operands[3].value
+        if axes is None
+        else adaptor.operands[4].value
+    )
+    axes = (
+        [i for i in range(input_rank)]
+        if axes is None
+        else adaptor.operands[3].value
+    )
+
+    assert len(starts) == len(
+        ends
+    ), ""Incompatible attributes starts and ends for Slice.""
+
+    new_start = np.zeros(input_rank, dtype=np.int64)  # start from zero
+    new_end = np.array(input_shape)  # end with original shape limit
+    new_step = np.ones(input_rank, dtype=np.int64)  # step default 1
+    if len(starts) == len(axes):
+        for idx, axis in enumerate(axes):
+            new_start[axis] = starts[idx]
+            new_end[axis] = ends[idx]
+            new_step[axis] = steps[idx]
+    elif len(starts) == 1:
+        for index in range(input_rank):
+            if index in axes:
+                new_start[index] = starts[0]
+                new_end[index] = ends[0]
+                new_step[index] = steps[0]
+    else:
+        raise ValueError(""Incompatible attributes starts and axes for Slice."")
+
+    # torch2onnx, axes is all -1. need transpose to hbir
+    if (steps == -1).any():
+        return hbir.flip(data, axes)
+
+    return hbir.slice(
+        data, begin=new_start, end=new_end, step=new_step, output_type=y
+    )
+//opset13
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    starts: mlir.Value,
+    ends: mlir.Value,
+    axes: Optional[mlir.Value] = None,
+    steps: Optional[mlir.Value] = None,
+):
+    # case0: process dynamic slice or attr do not has static value
+    # 1. has dynamic tensor
+    input_has_dynamic_dim = (
+        has_dynamic_dim(data) or has_dynamic_dim(starts) or has_dynamic_dim(ends)
+    )
+    # 2. attr do not has static value
+    if not isinstance(adaptor.operands[1].value, np.ndarray):
+        input_has_dynamic_dim = True
+    if not isinstance(adaptor.operands[2].value, np.ndarray):
+        input_has_dynamic_dim = True
+    if axes is not None:
+        if has_dynamic_dim(axes):
+            input_has_dynamic_dim = True
+        if not isinstance(adaptor.operands[3].value, np.ndarray):
+            input_has_dynamic_dim = True
+    if steps is not None:
+        if has_dynamic_dim(steps):
+            input_has_dynamic_dim = True
+        if not isinstance(adaptor.operands[4].value, np.ndarray):
+            input_has_dynamic_dim = True
+
+    # if has no static value
+    if (adaptor.operands[0].value is None) or (adaptor.operands[1].value is None):
+        input_has_dynamic_dim = True
+    if input_has_dynamic_dim:
+        starts_size = adaptor.operands[1].type.shape[0]
+        axes = get_value_or_create_const(
+            np.array([i for i in range(starts_size)]) if axes is None else axes
+        )
+        steps = get_value_or_create_const(
+            np.ones(starts_size, dtype=np.int64) if steps is None else steps
+        )
+        return hbir.dynamic_slice(data, starts, ends, axes, steps)
+
+    # case1: process normal slice, use hbir.slice
+    input_shape = adaptor.operands[0].type.shape
+    input_rank = len(input_shape)
+    starts = adaptor.operands[1].value
+    ends = adaptor.operands[2].value
+    steps = (
+        np.ones(input_rank, dtype=np.int64)
+        if steps is None
+        else adaptor.operands[3].value
+        if axes is None
+        else adaptor.operands[4].value
+    )
+    axes = (
+        [i for i in range(input_rank)]
+        if axes is None
+        else adaptor.operands[3].value
+    )
+
+    assert len(starts) == len(
+        ends
+    ), ""Incompatible attributes starts and ends for Slice.""
+
+    new_start = np.zeros(input_rank, dtype=np.int64)  # start from zero
+    new_end = np.array(input_shape)  # end with original shape limit
+    new_step = np.ones(input_rank, dtype=np.int64)  # step default 1
+    if len(starts) == len(axes):
+        for idx, axis in enumerate(axes):
+            new_start[axis] = starts[idx]
+            new_end[axis] = ends[idx]
+            new_step[axis] = steps[idx]
+    elif len(starts) == 1:
+        for index in range(input_rank):
+            if index in axes:
+                new_start[index] = starts[0]
+                new_end[index] = ends[0]
+                new_step[index] = steps[0]
+    else:
+        raise ValueError(""Incompatible attributes starts and axes for Slice."")
+
+    # torch2onnx, axes is all -1
+    if (steps == -1).any():
+        return hbir.flip(data, axes)
+
+    return hbir.slice(
+        data, begin=new_start, end=new_end, step=new_step, output_type=y
+    )","hbir.dynamic_slice
+hbir.slice
+hbir.slice
+hbir.flip
+","{'hbir.dynamic_slice': 'Unsupported', 'hbir.slice': {'input': ['{Dim: all dims &lt; 2097152 }'], 'output': ['{Same as input}']}, 'hbir.flip': {'input': ['{Type: int8, int16, int32}'], 'output': ['{Same as input}']}}"
+Softmax,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, *, axis=-1
+):
+    return hbir.softmax(x, axis, output_type=y)","hbir.softmax
+",{'hbir.softmax': 'Unsupported'}
+Softplus,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+):
+    return hbir.softplus(x, 1.0, 20.0, output_type=y)","hbir.softplus
+","{'hbir.softplus': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+SpaceToDepth,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    blocksize,
+):
+    input_dim = len(adaptor.operands[0].type.shape)
+    if input_dim != 4:
+        raise ValueError(
+            f""Operator SpaceToDepth does not support input_dim not euqal to 4, got {input_dim}""
+        )
+    n, c, h, w = adaptor.operands[0].type.shape
+    if (h % blocksize != 0) or (w % blocksize != 0):
+        raise ValueError(
+            ""The height and width of the input shape must be divisible by blocksize.""
+        )
+    x = hbir.reshape(
+        x, (n, c, h // blocksize, blocksize, w // blocksize, blocksize)
+    )
+    x = hbir.transpose(x, [0, 3, 5, 1, 2, 4])
+    return hbir.reshape(
+        x,
+        (n, c * (blocksize * blocksize), h // blocksize, w // blocksize),
+        output_type=y,
+    )","hbir.reshape
+hbir.transpose
+hbir.reshape
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+Split,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, *args, axis=0, split
+):
+    ret_list = []
+    shape = adaptor.operands[0].type.shape
+    dim = len(shape)
+    axis = axis if axis >= 0 else (dim + axis)
+    asum = 0
+    for i in range(len(split)):
+        begin = np.array([0 if i != axis else asum for i in range(dim)])
+        asum += split[i]
+        end = np.array([shape[i] if i != axis else asum for i in range(dim)])
+        step = np.ones(shape=dim, dtype=np.int64)
+        output_type = y[i] if isinstance(y, list) else y
+        ret_list.append(
+            hbir.slice(x, begin=begin, end=end, step=step, output_type=output_type)
+        )
+    return ret_list
+//opset13
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, *args, axis=0
+):
+    split = None
+    if len(args) != 0:
+        split = adaptor.operands[1].value.tolist()
+    # format: ele = ceil(dim / num), the last one is dim - ele * (num -1)
+    # for example, num_outputs is 3, dim is 128, get split [43, 43, 42]
+    if split is None:
+        split = []
+        tmp_shape = adaptor.operands[0].type.shape
+        num_outputs = len(adaptor.results)
+        ele = int(math.ceil(tmp_shape[axis] / num_outputs))
+        if tmp_shape[axis] % num_outputs == 0:
+            split = [int(tmp_shape[axis] / num_outputs)] * num_outputs
+        else:
+            split = [ele] * (num_outputs - 1)
+            split.append(tmp_shape[axis] - ele * (num_outputs - 1))
+
+    ret_list = []
+    shape = adaptor.operands[0].type.shape
+    dim = len(shape)
+    asum = 0
+    for i in range(len(split)):
+        begin = np.array([0 if i != axis else asum for i in range(dim)])
+        asum += split[i]
+        end = np.array([shape[i] if i != axis else asum for i in range(dim)])
+        step = np.ones(dim, dtype=np.int64)
+        output_type = y[i]
+        ret_list.append(
+            hbir.slice(x, begin=begin, end=end, step=step, output_type=output_type)
+        )
+    return ret_list
+//opset18
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *args,
+    axis=0,
+    num_outputs=0,
+):
+    split = None
+    if len(args) != 0:
+        split = adaptor.operands[1].value.tolist()
+    # format: ele = ceil(dim / num), the last one is dim - ele * (num -1)
+    # for example, num_outputs is 3, dim is 128, get split [43, 43, 42]
+    if split is None:
+        split = []
+        tmp_shape = adaptor.operands[0].type.shape
+        ele = int(math.ceil(tmp_shape[axis] / num_outputs))
+        if tmp_shape[axis] % num_outputs == 0:
+            split = [int(tmp_shape[axis] / num_outputs)] * num_outputs
+        else:
+            split = [ele] * (num_outputs - 1)
+            split.append(tmp_shape[axis] - ele * (num_outputs - 1))
+
+    ret_list = []
+    shape = adaptor.operands[0].type.shape
+    dim = len(shape)
+    asum = 0
+    for i in range(len(split)):
+        begin = np.array([0 if i != axis else asum for i in range(dim)])
+        asum += split[i]
+        end = np.array([shape[i] if i != axis else asum for i in range(dim)])
+        step = np.ones(dim, dtype=np.int64)
+        output_type = y[i] if isinstance(y, list) else y
+        ret_list.append(
+            hbir.slice(x, begin=begin, end=end, step=step, output_type=output_type)
+        )
+    return ret_list","hbir.slice
+","{'hbir.slice': {'input': ['{Dim: all dims &lt; 2097152 }'], 'output': ['{Same as input}']}}"
+Squeeze,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    *,
+    axes: Optional[mlir.Value] = None,
+):
+    shape = adaptor.results[0].type.shape
+    return hbir.reshape(data, shape, output_type=y)
+//opset13
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, data: mlir.Value, *args):
+    axes = []
+    shape = adaptor.operands[0].type.shape
+    rank = len(shape)
+    # axes is input for op
+    if len(args) != 0:
+        axes = adaptor.operands[1].value.tolist()
+        # axis is [-r, r-1] where r = rank(data)
+        for idx in range(len(axes)):
+            if axes[idx] < 0:
+                axes[idx] = axes[idx] + rank
+    else:
+        # to find the single dimensions axis
+        for idx in range(len(shape)):
+            if shape[idx] == 1:
+                axes.append(idx)
+
+    axes = sorted(axes, reverse=True)
+    for axis in axes:
+        shape.pop(axis)
+    return hbir.reshape(data, shape, output_type=y)","hbir.reshape
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+Sub,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.sub(lhs, rhs, output_type=y)","hbir.sub
+","{'hbir.sub': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+Sum,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    lhs: mlir.Value,
+    rhs: mlir.Value,
+    *args,
+):
+    if len(args) != 0:
+        raise ValueError(f""Operator Sum expects 2 inputs, but got {len(args)+2}"")
+    return hbir.add(lhs, rhs, output_type=y)","hbir.add
+","{'hbir.add': {'lhs': ['{Type: int8, int16, int32, if type is int32, this hbir.add op must be fusible to a Conv op}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+ThresholdedRelu,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    *,
+    alpha=1.0,
+):
+    max = 3.4028234663852886e38
+    return hbir.clip(data, alpha, max, output_type=y)","hbir.clip
+","{'hbir.clip': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Tile,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    repeats: mlir.Value,
+):
+    repeats = adaptor.operands[1].value
+    return hbir.tile(data, repeats, output_type=y)","hbir.tile
+","{'hbir.tile': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+TopK,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    *,
+    k: mlir.Value,
+    axis: mlir.Value,
+):
+    largest = bool(1)
+    sorted = bool(1)
+    return hbir.topk(
+        data,
+        k=k,
+        dim=axis,
+        largest=largest,
+        sorted=sorted,
+        values_type=y[0],
+        indices_type=y[1],
+    )
+//opset10
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    k: mlir.Value,
+    *,
+    axis: mlir.Value,
+):
+    k = adaptor.operands[1].value.tolist()[0]
+    largest = bool(1)
+    sorted = bool(1)
+    return hbir.topk(
+        data,
+        k=k,
+        dim=axis,
+        largest=largest,
+        sorted=sorted,
+        values_type=y[0],
+        indices_type=y[1],
+    )
+//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    k: mlir.Value,
+    *,
+    axis: mlir.Value,
+    largest: mlir.Value = 1,
+    sorted: mlir.Value = 1,
+):
+    k = adaptor.operands[1].value.tolist()[0]
+    largest = bool(largest)
+    sorted = bool(sorted)
+    return hbir.topk(
+        data,
+        k=k,
+        dim=axis,
+        largest=largest,
+        sorted=sorted,
+        values_type=y[0],
+        indices_type=y[1],
+    )","hbir.topk
+",{'hbir.topk': 'Unsupported'}
+Transpose,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, perm):
+    return hbir.transpose(x, perm, output_type=y)","hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+Relu,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.relu(x, output_type=y)","hbir.relu
+","{'hbir.relu': {'input': ['{Type: int8, int16, int32}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Sigmoid,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.sigmoid(x, output_type=y)","hbir.sigmoid
+","{'hbir.sigmoid': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Sin,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.sin(x, output_type=y)","hbir.sin
+","{'hbir.sin': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Cos,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.cos(x, output_type=y)","hbir.cos
+","{'hbir.cos': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Tan,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.tan(x, output_type=y)","hbir.tan
+","{'hbir.tan': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Sinh,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.sinh(x, output_type=y)","hbir.sinh
+","{'hbir.sinh': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Cosh,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.cosh(x, output_type=y)","hbir.cosh
+","{'hbir.cosh': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Tanh,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.tanh(x, output_type=y)","hbir.tanh
+","{'hbir.tanh': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Asin,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.asin(x, output_type=y)","hbir.asin
+","{'hbir.asin': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Acos,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.acos(x, output_type=y)","hbir.acos
+","{'hbir.acos': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Atan,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.atan(x, output_type=y)","hbir.atan
+","{'hbir.atan': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Asinh,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.asinh(x, output_type=y)","hbir.asinh
+","{'hbir.asinh': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Acosh,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.acosh(x, output_type=y)","hbir.acosh
+","{'hbir.acosh': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Atanh,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.atanh(x, output_type=y)","hbir.atanh
+","{'hbir.atanh': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Erf,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.erf(x, output_type=y)","hbir.erf
+","{'hbir.erf': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Sqrt,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.sqrt(x, output_type=y)","hbir.sqrt
+","{'hbir.sqrt': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Log,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.log(x, output_type=y)","hbir.log
+","{'hbir.log': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Abs,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.abs(x, output_type=y)
+//opset13
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.abs(x, output_type=y)","hbir.abs
+","{'hbir.abs': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Floor,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.floor(x, output_type=y)","hbir.floor
+","{'hbir.floor': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Ceil,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.ceil(x, output_type=y)","hbir.ceil
+","{'hbir.ceil': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+Not,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.logical_not(x, output_type=y)","hbir.logical_not
+","{'hbir.logical_not': {'input': ['{Type: int8, int16, bool8}\n{Shape: [*]}'], 'output': ['{Type: bool8}']}}"
+Sign,"//opset9
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.sign(x, output_type=y)","hbir.sign
+",{'hbir.sign': 'Unsupported'}
+Unsqueeze,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    *,
+    axes: mlir.Value,
+):
+    shape = adaptor.results[0].type.shape
+    return hbir.reshape(data, shape, output_type=y)
+//opset13
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, data: mlir.Value, axes: mlir.Value
+):
+    shape = adaptor.results[0].type.shape
+    return hbir.reshape(data, shape, output_type=y)","hbir.reshape
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+Where,"//opset9
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    condition: mlir.Value,
+    X: mlir.Value,
+    Y: mlir.Value,
+):
+    return hbir.where(condition, X, Y, output_type=y)","hbir.where
+","{'hbir.where': {'condition': ['{Type: bool8}'], 'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Type: int8, int16}'], 'output': ['{Same as lhs}']}}"
+Xor,"//opset9
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.logical_xor(lhs, rhs, output_type=y)","hbir.logical_xor
+","{'hbir.logical_xor': {'lhs': ['{Type: int8, int16, bool8}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Type: bool8}']}}"
+Mod,"//opset10
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    lhs: mlir.Value,
+    rhs: mlir.Value,
+    *,
+    fmod=0,
+):
+    return hbir.mod(lhs, rhs, sameSignAsDividend=(fmod != 0), output_type=y)
+//opset13
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    lhs: mlir.Value,
+    rhs: mlir.Value,
+    *,
+    fmod=0,
+):
+    return hbir.mod(lhs, rhs, sameSignAsDividend=(fmod != 0), output_type=y)","hbir.mod
+",{'hbir.mod': 'Unsupported'}
+Resize,"//opset10
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    scales: mlir.Value = None,
+    *,
+    mode=""nearest"",
+):
+    input_shape = np.array(adaptor.operands[0].type.shape)
+    output_shape = np.array(adaptor.results[0].type.shape)
+    # Only supports resizing operations with 4-dimensional features
+    assert len(input_shape) == 4
+    scale_tensor = adaptor.operands[1].value
+    resize_scale = scale_tensor[2:]
+    if isinstance(mode, bytes):
+        mode = mode.decode()
+    if mode == ""linear"":
+        mode = ""bilinear""
+    if mode not in [""nearest"", ""bilinear""]:
+        raise ValueError(f""Operator Resize does not support resize mode: {mode}"")
+    # resize 10 only supports one resize method, which is the most basic resize method
+    step = 1 / resize_scale
+    initial_offset = np.array([-0.5, -0.5])
+
+    # 1. when there is a ratio parameter, if the value of ratio is negative, you need to correct the value of initialOffset;
+    # 2. when there is a size parameter, if the value of step is negative, you need to correct the value of initialOffset;
+    rank = len(input_shape)
+    numOfResizeAxis = 2
+    for i in range(numOfResizeAxis):
+        axis = rank - numOfResizeAxis - 1 + i
+        if step[i] < 0:
+            initial_offset[i] = float(input_shape[axis])
+
+    x = hbir.transpose(x, [0, 2, 3, 1])
+    x = hbir.resize2d(
+        x, step, initial_offset, mode, size=output_shape[2:], expansionMode=""border""
+    )
+    x = hbir.transpose(x, [0, 3, 1, 2], output_type=y)
+    return x
+//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    roi: mlir.Value = None,
+    scales: mlir.Value = None,
+    sizes: mlir.Value = None,
+    *,
+    coordinate_transformation_mode=""half_pixel"",
+    cubic_coeff_a=""-0.75"",
+    exclude_outside=0,
+    extrapolation_value=0,
+    mode=""nearest"",
+    nearest_mode=""round_prefer_floor"",
+):
+    input_shape = np.array(adaptor.operands[0].type.shape)
+    output_shape = np.array(adaptor.results[0].type.shape)
+    rank = len(input_shape)
+    roi = (
+        None
+        if (roi is None or (len(adaptor.operands[1].value) == 0))
+        else adaptor.operands[1].value
+    )
+    # 仅支持feature为4维的resize操作
+    assert len(input_shape) == 4
+    scale_tensor = (
+        None
+        if (scales is None or (len(adaptor.operands[2].value) == 0))
+        else adaptor.operands[2].value
+    )
+    if scale_tensor is not None:
+        resize_shape = input_shape * scale_tensor
+    else:
+        resize_shape = adaptor.operands[3].value
+        scale_tensor = np.array(
+            [
+                1,
+                1,
+                resize_shape[2] / input_shape[2],
+                resize_shape[3] / input_shape[3],
+            ]
+        )
+
+    length_original = input_shape[2:].astype(np.int32)
+    length_resized = resize_shape[2:].astype(np.int32)
+    coordinate_transformation_mode = (
+        coordinate_transformation_mode.decode()
+        if isinstance(coordinate_transformation_mode, bytes)
+        else coordinate_transformation_mode
+    )
+    if coordinate_transformation_mode != ""tf_crop_and_resize"" and np.array_equal(
+        length_original, length_resized
+    ):
+        x = hbir.transpose(x, [0, 2, 3, 1])
+        x = hbir.resize2d(
+            x, step=[1.0, 1.0], initialOffset=[0.0, 0.0], ratio=(1.0, 1.0)
+        )
+        x = hbir.transpose(x, [0, 3, 1, 2], output_type=y)
+        return x
+
+    # resize 计算公式:
+    # hw_in = initial_offset + hw_out * step
+    resize_scale = scale_tensor[2:]
+    if coordinate_transformation_mode in [""pytorch_half_pixel""]:
+        step = 1 / resize_scale
+        initial_offset = 0.5 / resize_scale - 0.5
+        for index, resized_num in enumerate(length_resized):
+            if resized_num <= 1:
+                step[index] = 0.0
+                initial_offset[index] = 0.0
+
+    elif coordinate_transformation_mode in [""half_pixel""]:
+        step = 1 / resize_scale
+        initial_offset = 0.5 / resize_scale - 0.5
+    elif coordinate_transformation_mode in [""align_corners""]:
+        step = (
+            (length_original[0] - 1) / (length_resized[0] - 1),
+            (length_original[1] - 1) / (length_resized[1] - 1),
+        )
+        initial_offset = [0.0, 0.0]
+    elif coordinate_transformation_mode in [""asymmetric""]:
+        step = 1 / resize_scale
+        initial_offset = [0.0, 0.0]
+
+    elif coordinate_transformation_mode in [""tf_half_pixel_for_nn""]:
+        step = 1 / resize_scale
+        initial_offset = 0.5 / resize_scale
+    elif coordinate_transformation_mode in [""tf_crop_and_resize""]:
+        start_x = roi[rank - 2 : rank]
+        end_x = roi[2 * rank - 2 : 2 * rank]
+        step = [1, 1]
+        initial_offset = [0, 0]
+        for index in range(len(length_resized)):
+            if length_resized[index] > 1:
+                step[index] = (
+                    (end_x[index] - start_x[index])
+                    * (length_original[index] - 1)
+                    / (length_resized[index] - 1)
+                )
+                initial_offset[index] = start_x[index] * (
+                    length_original[index] - 1
+                )
+            else:
+                step[index] = 0
+                initial_offset[index] = (
+                    0.5
+                    * (start_x[index] + end_x[index])
+                    * (length_original[index] - 1)
+                )
+    else:
+        raise ValueError(
+            f""Operator Resize does not support coordinate_transformation_mode: {coordinate_transformation_mode}""
+        )
+
+    if isinstance(mode, bytes):
+        mode = mode.decode()
+    if isinstance(nearest_mode, bytes):
+        nearest_mode = nearest_mode.decode()
+
+    if mode == ""linear"":
+        mode = ""bilinear""
+    if mode == ""cubic"":
+        mode = ""bicubic""
+    if mode not in [""nearest"", ""bilinear"", ""bicubic""]:
+        raise ValueError(f""Operator Resize does not support resize mode: {mode}"")
+    if mode == ""nearest"":
+        if nearest_mode == ""round_prefer_ceil"":
+            initial_offset += np.array(
+                [np.finfo(np.float32).eps, np.finfo(np.float32).eps]
+            )
+        if nearest_mode == ""round_prefer_floor"":
+            initial_offset -= np.array(
+                [np.finfo(np.float32).eps, np.finfo(np.float32).eps]
+            )
+        elif nearest_mode == ""floor"":
+            initial_offset -= np.array([0.5, 0.5])
+        elif nearest_mode == ""ceil"":
+            initial_offset += np.array([0.5, 0.5])
+        else:
+            raise ValueError(
+                f""Operator Resize does not support nearest_mode mode: {nearest_mode}""
+            )
+
+    # 1. when there is a ratio parameter, if the value of ratio is negative, you need to correct the value of initialOffset;
+    # 2. when there is a size parameter, if the value of step is negative, you need to correct the value of initialOffset;
+    rank = len(input_shape)
+    numOfResizeAxis = 2
+    for i in range(numOfResizeAxis):
+        axis = rank - numOfResizeAxis - 1 + i
+        if step[i] < 0:
+            initial_offset[i] = float(input_shape[axis])
+
+    x = hbir.transpose(x, [0, 2, 3, 1])
+    x = hbir.resize2d(
+        x, step, initial_offset, mode, size=output_shape[2:], expansionMode=""border""
+    )
+    x = hbir.transpose(x, [0, 3, 1, 2], output_type=y)
+    return x
+//opset18
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    roi: mlir.Value = None,
+    scales: mlir.Value = None,
+    sizes: mlir.Value = None,
+    *,
+    antialias=0,
+    axes=None,
+    coordinate_transformation_mode=""half_pixel"",
+    cubic_coeff_a=""-0.75"",
+    exclude_outside=0,
+    extrapolation_value=0,
+    keep_aspect_ratio_policy=""stretch"",
+    mode=""nearest"",
+    nearest_mode=""round_prefer_floor"",
+):
+    input_shape = np.array(adaptor.operands[0].type.shape)
+    length_original = input_shape[2:].astype(np.int32)
+    output_shape = np.array(adaptor.results[0].type.shape)
+    rank = len(input_shape)
+
+    # 仅支持feature为4维的resize操作
+    assert len(input_shape) == 4
+    if roi is not None and len(adaptor.operands[1].value) > 0:
+        roi = adaptor.operands[1].value
+    scale_tensor = (
+        None
+        if (scales is None or (len(adaptor.operands[2].value) == 0))
+        else adaptor.operands[2].value
+    )
+    output_size = (
+        None
+        if (sizes is None or (len(adaptor.operands[3].value) == 0))
+        else adaptor.operands[3].value
+    )
+    coordinate_transformation_mode = (
+        coordinate_transformation_mode.decode()
+        if isinstance(coordinate_transformation_mode, bytes)
+        else coordinate_transformation_mode
+    )
+    if isinstance(mode, bytes):
+        mode = mode.decode()
+    if isinstance(nearest_mode, bytes):
+        nearest_mode = nearest_mode.decode()
+    if isinstance(keep_aspect_ratio_policy, bytes):
+        keep_aspect_ratio_policy = keep_aspect_ratio_policy.decode()
+
+    if antialias != 0:
+        raise ValueError(""Operator Resize does not support antialias mode."")
+    if output_size is None and scale_tensor is None:
+        raise ValueError(
+            ""Operator Resize: one of scales and sizes must be specified.""
+        )
+    if output_size is not None and scale_tensor is not None:
+        raise ValueError(
+            ""Operator Resize: only one of scales and sizes can be specified.""
+        )
+
+    if axes is not None:
+        if len(axes) > 2:
+            raise ValueError(""Operator Resize supports specifying up to 2 axes."")
+        axes_num = len(axes)
+        if output_size is not None:
+            new_output_size = np.copy(input_shape)
+            new_output_size[axes] = output_size
+            output_size = new_output_size
+
+        if scale_tensor is not None:
+            new_scales = np.ones(rank, dtype=np.float32)
+            new_scales[axes] = scale_tensor
+            scale_tensor = new_scales
+
+        if roi is not None:
+            new_roi_begin = np.zeros(rank, dtype=np.float32)
+            new_roi_end = np.ones(rank, dtype=np.float32)
+            new_roi_begin[axes] = roi[:axes_num]
+            new_roi_end[axes] = roi[axes_num:]
+            roi = np.concatenate((new_roi_begin, new_roi_end))
+
+    if scale_tensor is not None:
+        resize_shape = input_shape * scale_tensor
+        length_resized = resize_shape[2:].astype(np.int32)
+    else:
+        resize_shape = output_size
+        length_resized = resize_shape[2:].astype(np.int32)
+        scale_tensor = np.array(
+            [
+                1,
+                1,
+                resize_shape[2] / input_shape[2],
+                resize_shape[3] / input_shape[3],
+            ]
+        )
+
+        if keep_aspect_ratio_policy != ""stretch"":
+            if keep_aspect_ratio_policy == ""not_larger"":
+                scale = np.min(resize_shape[2:] / input_shape[2:])
+            elif keep_aspect_ratio_policy == ""not_smaller"":
+                scale = np.max(resize_shape[2:] / input_shape[2:])
+            else:
+                raise ValueError(
+                    f""Invalid keep_aspect_ratio_policy={keep_aspect_ratio_policy!r}""
+                )
+
+            scale_tensor[2] = scale_tensor[3] = scale
+
+            resize_shape = input_shape * scale_tensor
+            length_resized = [int(elem + 0.5) for elem in resize_shape[2:]]
+
+    if coordinate_transformation_mode != ""tf_crop_and_resize"" and np.array_equal(
+        length_original, length_resized
+    ):
+        x = hbir.transpose(x, [0, 2, 3, 1])
+        x = hbir.resize2d(
+            x, step=[1.0, 1.0], initialOffset=[0.0, 0.0], ratio=(1.0, 1.0)
+        )
+        x = hbir.transpose(x, [0, 3, 1, 2], output_type=y)
+        return x
+
+    # resize calculation formula:
+    # hw_in = initial_offset + hw_out * step
+    resize_scale = scale_tensor[2:]
+    if coordinate_transformation_mode in [""pytorch_half_pixel""]:
+        step = 1 / resize_scale
+        initial_offset = 0.5 / resize_scale - 0.5
+        for index, resized_num in enumerate(length_resized):
+            if resized_num <= 1:
+                step[index] = 0.0
+                initial_offset[index] = 0.0
+    elif coordinate_transformation_mode in [""half_pixel_symmetric""]:
+        adjustment = length_resized / resize_shape[2:]
+        center = length_original / 2
+        offset = center * (1 - adjustment)
+        step = 1 / resize_scale
+        initial_offset = 0.5 / resize_scale - 0.5 + offset
+    elif coordinate_transformation_mode in [""half_pixel""]:
+        step = 1 / resize_scale
+        initial_offset = 0.5 / resize_scale - 0.5
+    elif coordinate_transformation_mode in [""align_corners""]:
+        step = (
+            (length_original[0] - 1) / (length_resized[0] - 1),
+            (length_original[1] - 1) / (length_resized[1] - 1),
+        )
+        initial_offset = [0.0, 0.0]
+    elif coordinate_transformation_mode in [""asymmetric""]:
+        step = 1 / resize_scale
+        initial_offset = [0.0, 0.0]
+    elif coordinate_transformation_mode in [""tf_crop_and_resize""]:
+        start_x = roi[rank - 2 : rank]
+        end_x = roi[2 * rank - 2 : 2 * rank]
+        step = [1, 1]
+        initial_offset = [0, 0]
+        for index in range(len(length_resized)):
+            if length_resized[index] > 1:
+                step[index] = (
+                    (end_x[index] - start_x[index])
+                    * (length_original[index] - 1)
+                    / (length_resized[index] - 1)
+                )
+                initial_offset[index] = start_x[index] * (
+                    length_original[index] - 1
+                )
+            else:
+                step[index] = 0
+                initial_offset[index] = (
+                    0.5
+                    * (start_x[index] + end_x[index])
+                    * (length_original[index] - 1)
+                )
+    else:
+        raise ValueError(
+            f""Operator Resize does not support coordinate_transformation_mode: {coordinate_transformation_mode}""
+        )
+
+    # Currently only nearest and bilinear are supported.
+    if mode == ""linear"":
+        mode = ""bilinear""
+    if mode == ""cubic"":
+        mode = ""bicubic""
+    if mode not in [""nearest"", ""bilinear"", ""bicubic""]:
+        raise ValueError(f""Operator Resize does not support resize mode: {mode}"")
+    if mode == ""nearest"":
+        if nearest_mode == ""round_prefer_ceil"":
+            initial_offset += np.array(
+                [np.finfo(np.float32).eps, np.finfo(np.float32).eps]
+            )
+        if nearest_mode == ""round_prefer_floor"":
+            initial_offset -= np.array(
+                [np.finfo(np.float32).eps, np.finfo(np.float32).eps]
+            )
+        elif nearest_mode == ""floor"":
+            initial_offset -= np.array([0.5, 0.5])
+        elif nearest_mode == ""ceil"":
+            initial_offset += np.array([0.5, 0.5])
+        else:
+            raise ValueError(
+                f""Operator Resize does not support nearest_mode mode: {nearest_mode}""
+            )
+
+    # 1. when there is a ratio parameter, if the value of ratio is negative, you need to correct the value of initialOffset;
+    # 2. when there is a size parameter, if the value of step is negative, you need to correct the value of initialOffset;
+    rank = len(input_shape)
+    numOfResizeAxis = 2
+    for i in range(numOfResizeAxis):
+        axis = rank - numOfResizeAxis - 1 + i
+        if step[i] < 0:
+            initial_offset[i] = float(input_shape[axis])
+
+    x = hbir.transpose(x, [0, 2, 3, 1])
+    x = hbir.resize2d(
+        x, step, initial_offset, mode, size=output_shape[2:], expansionMode=""border""
+    )
+    x = hbir.transpose(x, [0, 3, 1, 2], output_type=y)
+    return x","hbir.transpose
+hbir.resize2d
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.resize2d': {'input': ['{Type: int8}\n{Shape: [*,H,W,C]}\n{The integer part of step ∈ [-256, 255], otherwise the backend will be on cpu}'], 'output': ['{Same as input}'], 'mode': ['{Opset10: support nearest and bilinear}\n{Opset11 and newer: support nearest, bilinear and bicubic}']}}"
+CumSum,"//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    axis: mlir.Value,
+    *,
+    exclusive=0,
+    reverse=0,
+):
+    axis = adaptor.operands[1].value.tolist()
+    return hbir.cumsum(x, axis, exclusive=exclusive, reverse=reverse)","hbir.cumsum
+","{'hbir.cumsum': {'input': ['{Type: int8, int16}\n{Shape: [*, dim[axis], *]}\n{Dim: * ∈ [1, 65536]; dim[axis] ∈ [1, 8192]}'], 'output': ['{Type: int8, int16, int32}\n{Shape/Dim: same with input}']}}"
+DepthToSpaceConvertor,"//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    blocksize,
+    mode=b""DCR"",
+):
+    input_dim = len(adaptor.operands[0].type.shape)
+    if input_dim != 4:
+        raise ValueError(
+            f""Operator DepthToSpace does not support input_dim not euqal to 4, got {input_dim}""
+        )
+    n, c, h, w = adaptor.operands[0].type.shape
+    if c % (blocksize**2) != 0:
+        raise ValueError(
+            ""The channel of the input shape must be divisible by the square of blocksize.""
+        )
+
+    if mode == b""DCR"":
+        x = hbir.reshape(x, (n, blocksize, blocksize, c // (blocksize**2), h, w))
+        x = hbir.transpose(x, [0, 3, 4, 1, 5, 2])
+    elif mode == b""CRD"":
+        x = hbir.reshape(x, (n, c // (blocksize**2), blocksize, blocksize, h, w))
+        x = hbir.transpose(x, [0, 1, 4, 2, 5, 3])
+    else:
+        raise ValueError(
+            f""Operator DepthToSpace only support DCR mode and CRD mode, got {mode}""
+        )
+    return hbir.reshape(
+        x,
+        (n, c // (blocksize**2), h * blocksize, w * blocksize),
+        output_type=y,
+    )","hbir.reshape
+hbir.transpose
+hbir.reshape
+hbir.transpose
+hbir.reshape
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+NonMaxSuppression,"//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    boxes: mlir.Value,
+    scores: mlir.Value,
+    max_output_boxes_per_class: mlir.Value = None,
+    iou_threshold: mlir.Value = None,
+    score_threshold: mlir.Value = None,
+    *,
+    center_point_box=0,
+):
+
+    boxes_shape = np.array(adaptor.operands[0].type.shape)
+    scores_shape = np.array(adaptor.operands[1].type.shape)
+    assert len(boxes_shape) == 3 and boxes_shape[2] == 4
+    assert len(scores_shape) == 3 and boxes_shape[1] == scores_shape[2]
+
+    maxOutputBoxesPerClass = 0
+    if len(adaptor.operands) > 2:
+        maxOutputBoxesPerClass = int(adaptor.operands[2].value)
+
+    iouThreshold = 0.0
+    if len(adaptor.operands) > 3:
+        iouThreshold = float(adaptor.operands[3].value)
+
+    scoreThreshold = 0.0
+    if len(adaptor.operands) > 4:
+        scoreThreshold = float(adaptor.operands[4].value)
+
+    if center_point_box == 0:
+        mode = ""yxyx""
+    elif center_point_box == 1:
+        mode = ""xywh""
+    else:
+        raise ValueError(
+            f""Operator NonMaxSuppression does not support center_point_box: {center_point_box}""
+        )
+    if isinstance(mode, bytes):
+        mode = mode.decode()
+
+    if maxOutputBoxesPerClass == 0:
+        raise ValueError(
+            f""Operator NonMaxSuppression does not support max_output_boxes_per_class: {maxOutputBoxesPerClass}""
+        )
+
+    return hbir.nms(
+        boxes, scores, mode, iouThreshold, scoreThreshold, maxOutputBoxesPerClass
+    )","hbir.nms
+",{'hbir.nms': 'Unsupported'}
+Round,"//opset11
+def emit_mlir_op(self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value):
+    return hbir.round(x, 0, output_type=y)","hbir.round
+",{'hbir.round': 'Unsupported'}
+ScatterElements,"//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    updates: mlir.Value,
+    axis=0,
+):
+    return hbir.scatter_elements(data, indices, updates, axis, output_type=y)
+//opset16
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    updates: mlir.Value,
+    *,
+    axis=0,
+    reduction=""none"",
+):
+    return hbir.scatter_elements(
+        data,
+        indices,
+        updates,
+        axis=axis,
+        scatterReduceMode=reduction,
+        output_type=y,
+    )","hbir.scatter_elements
+",{'hbir.scatter_elements': 'Unsupported'}
+ScatterND,"//opset11
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data: mlir.Value,
+    indices: mlir.Value,
+    updates: mlir.Value,
+):
+    return hbir.scatter_nd(data, indices, updates, output_type=y)","hbir.scatter_nd
+",{'hbir.scatter_nd': 'Unsupported'}
+GreaterOrEqual,"//opset12
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.greater_equal(lhs, rhs, output_type=y)","hbir.greater_equal
+","{'hbir.greater_equal': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Type: bool8}']}}"
+LessOrEqual,"//opset12
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.less_equal(lhs, rhs, output_type=y)","hbir.less_equal
+","{'hbir.less_equal': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Type: bool8}']}}"
+Trilu,"//opset13
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *args,
+    upper=1,
+):
+    k = 0
+    if len(args) != 0:
+        k = adaptor.operands[1].value
+    shape = adaptor.operands[0].type.shape
+    matrix = []
+    if upper == 1:
+        matrix = np.triu(np.ones(shape), k)
+    else:
+        matrix = np.tril(np.ones(shape), k)
+    fake_quant_matrix = qnt.const_fake_quant(
+        matrix, [-128.0], [127.0], 8, False, axis=None
+    )
+    return hbir.mul(x, fake_quant_matrix)","hbir.mul
+","{'hbir.mul': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+GridSample,"//opset16
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    Grid: mlir.Value,
+    *,
+    align_corners=0,
+    mode=""bilinear"",
+    padding_mode=""zeros"",
+):
+    if isinstance(mode, bytes):
+        mode = mode.decode()
+    # Currently only supports nearest and bilinear
+    if mode not in [""nearest"", ""bilinear""]:
+        raise ValueError(
+            f""Operator GridSample does not support resize mode: {mode}""
+        )
+    padding_mode = (
+        padding_mode if type(padding_mode) == str else padding_mode.decode()
+    )
+
+    x = hbir.transpose(x, [0, 2, 3, 1])
+    if padding_mode == ""zeros"":
+        x = hbir.grid_sample(
+            x, Grid, mode=mode, alignCorner=bool(align_corners), padValue=0
+        )
+    elif padding_mode == ""border"":
+        x = hbir.grid_sample(
+            x,
+            Grid,
+            mode=mode,
+            alignCorner=bool(align_corners),
+            expansionMode=padding_mode,
+        )
+    else:
+        raise ValueError(
+            f""Operator GridSample does not support padding_mode {padding_mode}""
+        )
+    return hbir.transpose(x, [0, 3, 1, 2], output_type=y)
+//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    Grid: mlir.Value,
+    *,
+    align_corners=0,
+    mode=""bilinear"",
+    padding_mode=""zeros"",
+):
+    padding_mode = (
+        padding_mode if type(padding_mode) == str else padding_mode.decode()
+    )
+
+    x = hbir.transpose(x, [0, 2, 3, 1])
+    if padding_mode == ""zeros"":
+        x = hbir.grid_sample(
+            x, Grid, mode=mode, alignCorner=bool(align_corners), padValue=0
+        )
+    elif padding_mode == ""border"":
+        x = hbir.grid_sample(
+            x,
+            Grid,
+            mode=mode,
+            alignCorner=bool(align_corners),
+            expansionMode=padding_mode,
+        )
+    else:
+        raise ValueError(
+            f""Operator GridSample does not support padding_mode {padding_mode}""
+        )
+    return hbir.transpose(x, [0, 3, 1, 2], output_type=y)","hbir.transpose
+hbir.grid_sample
+hbir.grid_sample
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.grid_sample': {'input': ['{Type: int8}\n{Shape: [*,H,W,C]}\n{Dim: dims ∈ [1, 65536], H and W cannot both be greater than 4096 at the same time}'], 'grid': ['{Type: int16}\n{Shape: [*,H,W,2]}'], 'output': ['{Same as input except Dim constraints}'], 'mode': ['{Only support bilinear and nearest}'], 'padding_mode': ['{Only support zeros and border}']}}"
+LayerNormalization,"//opset17
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    otype: mlir.Type,
+    x: mlir.Value,
+    scale: mlir.Value,
+    bias: Optional[mlir.Value] = None,
+    *,
+    axis=-1,
+    epsilon=1e-05,
+    stash_type=1,
+):
+    if stash_type != 1:
+        raise ValueError(
+            f""LayerNormalization not support for stash_type={stash_type} != 1.""
+        )
+    itype = adaptor.operands[0].type
+    rank = len(itype.shape)
+    assert (-rank <= axis) and (
+        axis < rank
+    ), 'invalid ""aixs"" attr of LayerNormalization op'
+    norm_dims = (
+        list(range(rank + axis, rank)) if (axis < 0) else list(range(axis, rank))
+    )
+
+    # align scale rank to targeted rank
+    stype = adaptor.operands[1].type
+    expansion = [1] * (itype.rank - stype.rank)
+    if not is_unidirectional_broadcastable(itype.shape, stype.shape):
+        raise ValueError(
+            f""scale shape {stype.shape} can not broadcast to input shape {itype.shape}""
+        )
+    scale = hbir.reshape(scale, [*expansion, *stype.shape])
+
+    if bias is not None:  # align bias rank to targeted rank
+        btype = adaptor.operands[2].type
+        if not is_unidirectional_broadcastable(itype.shape, btype.shape):
+            raise ValueError(
+                f""bias shape {btype.shape} can not broadcast to input shape {itype.shape}""
+            )
+        expansion = [1] * (itype.rank - btype.rank)
+        bias = hbir.reshape(bias, [*expansion, *btype.shape])
+
+    x = hbir.layernorm(
+        x, dims=norm_dims, eps=epsilon, weight=scale, bias=bias, output_type=otype
+    )
+    return x","hbir.reshape
+hbir.reshape
+hbir.layernorm
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.layernorm': 'Unsupported'}"
+BitwiseAndOp,"//opset18
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.bitwise_and(lhs, rhs, output_type=y)","hbir.bitwise_and
+","{'hbir.bitwise_and': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+BitwiseOrOp,"//opset18
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, rhs: mlir.Value
+):
+    return hbir.bitwise_or(lhs, rhs, output_type=y)","hbir.bitwise_or
+","{'hbir.bitwise_or': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+Reduce,"//opset18
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *args,
+    keepdims=1,
+    noop_with_empty_axes=0,
+):
+    axes = None
+    if len(args) != 0:
+        axes = adaptor.operands[1].value.tolist()
+
+    if axes is None:
+        axes = []
+        if noop_with_empty_axes == 0:
+            # Reduce all axes
+            axes = list(range(mlir.ShapedType(x.type).rank))
+        else:
+            # act like identity operands, here convert to reshape
+            return hbir.reshape(x, adaptor.operands[0].type.shape)
+
+    return self.mlir_op_func(x, dims=axes, keepDim=bool(keepdims), output_type=y)","hbir.reshape
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+BevPoolV2,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    otype: mlir.Type,
+    x: mlir.Value,
+    feat: mlir.Value,
+    ranks_depth: mlir.Value,
+    ranks_feat: mlir.Value,
+    ranks_bev: mlir.Value,
+    bev_feat_shape: mlir.Value,
+    interval_starts: mlir.Value,
+    interval_lengths: mlir.Value,
+    *args,
+):
+    bev_feat_shape_list = []
+    for i in range(otype.rank):
+        bev_feat_shape_list.append(otype.shape[i])
+
+    # only support rank == 4 and 5
+    assert otype.rank == 4 or otype.rank == 5, ""now only support 4d or 5d""
+    if otype.rank == 5:
+        # bev_feat_shape.permute(0 ,4, 1, 2, 3) = fout.shape
+        total_dims = len(bev_feat_shape_list)
+        batch_dims_count = total_dims - 5
+        batch_dims = bev_feat_shape_list[:batch_dims_count]
+        last_five_dims = bev_feat_shape_list[batch_dims_count:]
+        permute_order = [0, 2, 3, 4, 1]
+        new_shape = batch_dims + [last_five_dims[i] for i in permute_order]
+        bev_feat_shape_list = new_shape
+        feat = hbir.transpose(feat, (0, 1, 3, 4, 2))
+    elif otype.rank == 4:
+        # bev_feat_shape.permute(3, 0, 1, 2) = fout.shape
+        original_array = np.array(bev_feat_shape_list)
+        bev_feat_shape_list = np.transpose(original_array, (1, 2, 3, 0)).tolist()
+        feat = hbir.transpose(feat, (0, 3, 2, 1))
+
+    x = hbir.bev_pool_v2(
+        depth=x,
+        feat=feat,
+        ranks_depth=ranks_depth,
+        ranks_feat=ranks_feat,
+        ranks_bev=ranks_bev,
+        interval_starts=interval_starts,
+        interval_lengths=interval_lengths,
+        bev_feat_shape=bev_feat_shape_list,
+        # output_type=otype, // In order to separate permute from hbtl, the output type cannot be used here, otherwise infertype will not pass.
+    )
+    return nhwc_to_nchw(x)","hbir.transpose
+hbir.transpose
+hbir.bev_pool_v2
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.bev_pool_v2': 'Unsupported'}"
+DeformConv,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    w: mlir.Value,
+    offset: mlir.Value,
+    mask: mlir.Value,
+    bias: mlir.Value,
+    stride_h: mlir.Value,
+    stride_w: mlir.Value,
+    pad_h: mlir.Value,
+    pad_w: mlir.Value,
+    dil_h: mlir.Value,
+    dil_w: mlir.Value,
+    n_weight_grps: mlir.Value,
+    n_offset_grps: mlir.Value,
+    use_mask: mlir.Value,
+    *args,
+):
+    if len(adaptor.operands) != 14:
+        raise ValueError(
+            f""Invalid number of operands of DeformConv2d op: should be 14, given {len(adaptor.operands)}""
+        )
+    strides = [1, 1]
+    pads = [0, 0, 0, 0]
+    dilations = [1, 1]
+
+    strides_height = int(adaptor.operands[5].value.astype(np.int64))
+    strides_width = int(adaptor.operands[6].value.astype(np.int64))
+    pad_height = int(adaptor.operands[7].value.astype(np.int64))
+    pad_width = int(adaptor.operands[8].value.astype(np.int64))
+    dialtion_height = int(adaptor.operands[9].value.astype(np.int64))
+    dialtion_width = int(adaptor.operands[10].value.astype(np.int64))
+    weight_grps = int(adaptor.operands[11].value.astype(np.int64))
+    offset_grps = int(adaptor.operands[12].value.astype(np.int64))
+    mask_flag = bool(adaptor.operands[13].value.astype(np.bool8))
+
+    strides = [strides_height, strides_width]
+    pads = (
+        pad_height,
+        pad_width,
+        pad_height,
+        pad_width,
+    )
+    dilations = (dialtion_height, dialtion_width)
+
+    # input trans: nchw->nhwc
+    # output trans: nhwc->nchw
+    mask_shape = offset.type.shape
+    mask_shape[1] = mask_shape[1] // 2
+    if mask_flag is False:
+        mask = get_value_or_create_const(np.ones(mask_shape))
+
+    x = hbir.transpose(x, [0, 2, 3, 1])
+    w = hbir.transpose(w, [0, 2, 3, 1])
+    offset = hbir.transpose(offset, [0, 2, 3, 1])
+    mask = hbir.transpose(mask, [0, 2, 3, 1])
+    x = hbir.deform_conv2d(
+        x,
+        w,
+        offset,
+        mask,
+        strides,
+        pads,
+        dilations,
+        weight_grps,
+        offset_grps,
+        mask_flag,
+        bias=bias,
+    )
+    x = hbir.transpose(x, [0, 3, 1, 2], output_type=y)
+    return x","hbir.transpose
+hbir.transpose
+hbir.transpose
+hbir.transpose
+hbir.deform_conv2d
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.deform_conv2d': {'input': ['{Type: int8}\n{Shape: [*,H,W,C]}\n{Dim: H,W ∈ [1, 1024]; H × W ≤ 720 × 1024; other dims ∈ [1, 65536]}'], 'offset': ['{Type: int16}\n{Shape: [*,OH,OW,2 × offsetGroupNum × KH × KW]}\n{Size: 2 × offsetGroupNum × KH × KW ∈ [2, 256], OH × KH × OW × KW ≤ 720 × 1024}'], 'mask': ['{Type: int8}\n{Shape: [*,OH,OW,offsetGroupNum × KH × KW]}\n{Size: offsetGroupNum × KH × KW ∈ [1, 128]}'], 'weight': ['{Type: int8}\n{Shape: [N,KH,KW,C]}\n{Dim: C ∈ [1, 8192]; KH,KW ∈ [1, 8]; N ∈ [1, 4096]}\n{Size: KH × KW × C ∈ [1, 65536]}'], 'bias': ['{Type: f32}'], 'output': ['{Type: int8, int16, int32}\n{Other constraints: Same as fin}'], 'stride': ['{Shape: [SH,SW]}\n{Dim: SH,SW ∈ [1]}'], 'pad': ['{Shape: [P_top,P_left,P_bottom,P_right]}\n{Dim: P_top,P_bottom ∈ [-H/2, 256], P_left,P_right ∈ [-W/2, 256]}'], 'groupNum': ['{fin.c is divisible by group number}'], 'offsetGroupNum': ['{fin.c is divisible by offset group number}\n{Size: offsetGroupNum ∈ [1, 2]}'], 'dilation': ['{Shape: [DH,DW]}\n{Dim: DH,DW ∈ [1]}'], 'others': ['{For each group, fin.c ∈ [1, 8192], KH × KW × fin.c ∈ [1, 65535], fin.c = C when group = 1}']}}"
+GridSamplePlugin,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    Grid: mlir.Value,
+    *,
+    align_corners,
+    mode=""bilinear"",
+    padding_mode=""zeros"",
+):
+    if not align_corners:
+        raise ValueError(
+            f""Operator GridSamplePlugin does not support align_corners be False""
+        )
+    padding_mode = (
+        padding_mode if type(padding_mode) == str else padding_mode.decode()
+    )
+    if padding_mode != ""zeros"":
+        raise ValueError(
+            f""Operator GridSamplePlugin does not support padding_mode {padding_mode}""
+        )
+
+    x = hbir.transpose(x, [0, 2, 3, 1])
+    x = hbir.warp(x, Grid, mode=mode, padValue=0)
+    return hbir.transpose(x, [0, 3, 1, 2], output_type=y)","hbir.transpose
+hbir.warp
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.warp': {'input': ['{Type: nearest mode supports int8, int16, int32, float16, float32; the others only support int8}\n{Shape: [*,H,W,C]}\n{Dim: dims ∈ [1, 65536], H and W cannot both be greater than 4096 at the same time}'], 'grid': ['{Type: int16}\n{Shape: [*,H,W,2]}'], 'output': ['{Same as input except Dim constraints}']}}"
+HzCalibrationConvertor,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    scales: Union[float, List[float]] = None,
+    bits: int = None,  # deprecated in recent horizon nn
+    axis: int = None,
+    zero_point: int = 0,
+    qtype: str = None,  # new in horizon nn
+    **ignored_attrs,
+):
+    if qtype is not None:
+        qtype = qtype.decode()
+        if qtype == ""float16"":
+            return hbir.fake_cast(x, mlir.F16Type.get(), output_type=y)
+        if qtype == ""float32"":
+            return x
+        bit_map = {
+            ""int8"": 8,
+            ""uint8"": 8,
+            ""int16"": 16,
+            ""uint16"": 16,
+            ""int32"": 32,
+        }
+        zp_map = {""uint8"": -128, ""uint16"": -32768}
+
+        if qtype not in bit_map:
+            raise ValueError(f""Operator HzCalibration has unknown qtype {qtype}"")
+
+        bits = bit_map[qtype]
+
+        if qtype in zp_map:
+            zero_point = zp_map[qtype]
+
+    if isinstance(zero_point, list):
+        zero_point = zero_point[0]
+
+    quant_min = -1 * 2 ** (bits - 1) - zero_point
+    quant_max = 2 ** (bits - 1) - 1 - zero_point
+
+    if scales is None:
+        raise ValueError(
+            f""Operator HzCalibration scale is not valid but qtype is {qtype}""
+        )
+
+    scales = np.array(scales)
+
+    min_value = scales * quant_min
+    max_value = scales * quant_max
+    narrow = (quant_min + quant_max) == 0
+
+    if axis is None:
+        return qnt.const_fake_quant(
+            x, [min_value[0]], [max_value[0]], bits, narrow, output_type=y
+        )
+    else:
+        return qnt.const_fake_quant(
+            x,
+            min_value.tolist(),
+            max_value.tolist(),
+            bits,
+            narrow,
+            axis=axis,
+            output_type=y,
+        )","hbir.fake_cast
+",{'hbir.fake_cast': 'Unsupported'}
+HzCorrelation,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    data1: mlir.Value,
+    data2: mlir.Value,
+    *,
+    is_multiply=1,
+    kernel=1,
+    max_displacement=1,
+    pad=0,
+    strides,
+):
+    if is_multiply != 1:
+        raise ValueError(
+            f""Operator HzCorrelation does not support attributes is_multiply with value: {is_multiply}""
+        )
+    data1 = hbir.transpose(data1, [0, 2, 3, 1])
+    data2 = hbir.transpose(data2, [0, 2, 3, 1])
+    ret = hbir.correlation(
+        data1,
+        data2,
+        kernel=kernel,
+        max_d=max_displacement,
+        stride1=strides[0],
+        stride2=strides[1],
+        pad=pad,
+    )
+    ret = hbir.transpose(ret, [0, 3, 1, 2], output_type=y)
+    return ret","hbir.transpose
+hbir.transpose
+hbir.correlation
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.correlation': 'Unsupported'}"
+HzFilter,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: List[mlir.Type],
+    x: mlir.Value,
+    *args,
+    idx_range,
+    threshold,
+):
+    if len(y) > 4:  # maxValue, maxIndex, coord, data
+        raise ValueError(
+            f""No support for HzFilter {adaptor.name} that has multiple inputs""
+        )
+    x = nchw_to_nhwc(x)
+    ret = hbir.filter(
+        x,
+        channelBegin=idx_range[0],
+        channelEnd=idx_range[1],
+        threshold=threshold,
+        maxValue_type=mlir.UnrankedTensorType.get(y[0].element_type),
+        maxIndex_type=mlir.UnrankedTensorType.get(y[1].element_type),
+        filterCoord_type=mlir.UnrankedTensorType.get(y[2].element_type),
+        filterData_type=mlir.UnrankedTensorType.get(y[3].element_type),
+    )
+    return ret","hbir.filter
+","{'hbir.filter': {'input': ['{Type: int8, int16}\n{Shape: [*, H, W, C]}\n{bpu filter batch dim must be 1 when rank4, input feature size should be less than sram/5, H,W must be in range (0, 32768)\n      }'], 'threshold': ['{for int8 input, value should be in range [-128, 127], for int16 input, value should be in range[-32768, 32767]}'], 'others': ['{All ops between the filterData and the last layer of the model should be cpu ops}']}}"
+HzGelu,"//horizon
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, lhs: mlir.Value, approximate=""none""
+):
+    return hbir.gelu(lhs, approximate=approximate, output_type=y)","hbir.gelu
+","{'hbir.gelu': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+HzLayerNorm,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    otype: mlir.Type,
+    x: mlir.Value,
+    scale: mlir.Value,
+    bias: Optional[mlir.Value] = None,
+    *,
+    axis=-1,
+    epsilon=1e-05,
+):
+    itype = adaptor.operands[0].type
+    rank = len(itype.shape)
+    assert (-rank <= axis) and (
+        axis < rank
+    ), 'invalid ""aixs"" attr of HzLayerNorm op'
+    norm_dims = (
+        list(range(rank + axis, rank)) if (axis < 0) else list(range(axis, rank))
+    )
+
+    # align scale rank to targeted rank
+    stype = adaptor.operands[1].type
+    expansion = [1] * (itype.rank - stype.rank)
+    scale = hbir.reshape(scale, [*expansion, *stype.shape])
+
+    if bias is not None:  # align bias rank to targeted rank
+        btype = adaptor.operands[2].type
+        expansion = [1] * (itype.rank - btype.rank)
+        bias = hbir.reshape(bias, [*expansion, *btype.shape])
+
+    x = hbir.layernorm(
+        x, dims=norm_dims, eps=epsilon, weight=scale, bias=bias, output_type=otype
+    )
+    return x","hbir.reshape
+hbir.reshape
+hbir.layernorm
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.layernorm': 'Unsupported'}"
+HzLut2LayerConvertor,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    bias,
+    bound,
+    data_format=""NHWC"",
+    left_shift,
+    lut_type,
+    output_bit,
+    right_shift,
+    rounding_method=""ROUND"",
+    scale,
+    symmetry_mode,
+    table_param,
+):
+    config = np.zeros(512, dtype=np.int16)
+    config[:384] = np.array(table_param).astype(np.int16)
+    bias = adaptor.attributes[""bias""]  # 1
+    scale = adaptor.attributes[""scale""]  # 2
+    left_shift = adaptor.attributes[""left_shift""]  # 3
+    right_shift = adaptor.attributes[""right_shift""]  # 4
+    bound = adaptor.attributes[""bound""]  # 5
+    last_list = []
+    for index in range(len(bias.value)):
+        shift = (np.int16(np.int8(left_shift.value[index])) << 8) | np.int16(
+            np.int8(right_shift.value[index])
+        )
+        tmp_list = [
+            np.int16(bias.value[index]),
+            np.int16(scale.value[index]),
+            shift,
+            np.int16(bound.value[index]),
+        ]
+        last_list.extend(tmp_list)
+    config[448:480] = np.array(last_list).astype(np.int16)
+    if data_format == ""NCHW"":
+        x = hbir.transpose(x, [0, 2, 3, 1])
+    symmetry_mode = (
+        symmetry_mode if type(symmetry_mode) == str else symmetry_mode.decode()
+    )
+    if symmetry_mode == ""NONE"":
+        sym_mode = ""ASYM""
+    elif symmetry_mode == ""ORIGIN_SYMMETRIC"":
+        sym_mode = ""CSYM""
+    elif symmetry_mode == ""Y_SYMMETRIC"":
+        sym_mode = ""YSYM""
+    else:
+        raise ValueError(
+            f""Operator HzLut2Layer does not support symmetry_mode {symmetry_mode}""
+        )
+    rounding_method = (
+        rounding_method
+        if type(rounding_method) == str
+        else rounding_method.decode()
+    )
+    if rounding_method != ""ROUND"":
+        raise ValueError(
+            f""Operator HzLut2Layer does not support rounding_method {rounding_method}""
+        )
+    x = b25.lut(x, config, symmetricMode=sym_mode, output_type=y)
+    if data_format == ""NCHW"":
+        x = hbir.transpose(x, [0, 3, 1, 2], output_type=y)
+    return x","hbir.transpose
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+HzLutConvertor,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    param: mlir.Value,
+    *,
+    lut_type,
+    data_format=""NHWC"",
+):
+    lut_param = adaptor.operands[1].value
+    lut_param = np.roll(lut_param, 128)
+    config = np.array([item for item in lut_param for _ in range(2)])
+    if data_format == ""NCHW"":
+        x = hbir.transpose(x, [0, 2, 3, 1])
+    x = b25.lut(x, config, output_type=y)
+    if data_format == ""NCHW"":
+        x = hbir.transpose(x, [0, 3, 1, 2], output_type=y)
+    return x","hbir.transpose
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+HzPad,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    pad_value: mlir.Value,
+    *,
+    pads,
+    mode=""constant"",
+    data_format=""NCHW"",
+):
+    if data_format == ""NHWC"":
+        x = hbir.transpose(x, [0, 2, 3, 1])
+    pad_value = float(adaptor.operands[1].value[0])
+    mode = mode if type(mode) == ""str"" else mode.decode()
+    if mode not in [""constant"", ""edge""]:
+        raise ValueError(f""Operator HzPad does not support mode with value: {mode}"")
+    if mode == ""edge"":
+        mode = ""border""
+
+    pad_length = len(pads)
+    if data_format == ""NHWC"":
+        ret = hbir.pad(
+            x,
+            begin=pads[: pad_length // 2],
+            end=pads[pad_length // 2 :],
+            padValue=pad_value,
+            expansionMode=mode,
+        )
+        ret = hbir.transpose(ret, [0, 3, 1, 2], output_type=y)
+    else:
+        ret = hbir.pad(
+            x,
+            begin=pads[: pad_length // 2],
+            end=pads[pad_length // 2 :],
+            padValue=pad_value,
+            expansionMode=mode,
+            output_type=y,
+        )
+    return ret","hbir.transpose
+hbir.pad
+hbir.transpose
+hbir.pad
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.pad': {'input': ""{Type: int64, uint64 and f64 are not supported when expansionMode is 'constant' else no constraints}\n{Dim: all dims &lt; 737280 when expansionMode is not 'constant' else no constraints}"", 'output': ['{Same as input}'], 'begin/end': ['{Value should be in range [1, 1024]}']}}"
+HzPointPillarsPreprocess,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    points: mlir.Value,
+    pc_ranges: mlir.Value,
+    voxel_sizes: mlir.Value,
+    norm_ranges: mlir.Value,
+    norm_dims: mlir.Value,
+    *,
+    max_points_per_voxel: int,
+    max_voxels: int,
+    use_max: int,
+):
+    pcRanges = tuple(float(v) for v in adaptor.operands[1].value)
+    voxelSizes = tuple(float(v) for v in adaptor.operands[2].value)
+    normRanges = tuple(float(v) for v in adaptor.operands[3].value)
+    normDims = tuple(int(v) for v in adaptor.operands[4].value)
+    voxels, coords = hbir.point_pillar_preprocess(
+        points,
+        pcRanges,
+        voxelSizes,
+        max_voxels,
+        max_points_per_voxel,
+        normDims,
+        normRanges=normRanges,
+    )
+    # ptq op output is NCHW
+    voxels = hbir.transpose(voxels, [0, 3, 1, 2])
+    return voxels, coords","hbir.point_pillar_preprocess
+hbir.transpose
+","{'hbir.point_pillar_preprocess': 'Unsupported', 'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+HzPreprocessConvertor,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    w: mlir.Value,
+    b: Optional[mlir.Value] = None,
+    *,
+    channel_group,
+    data_format=""NCHW"",
+    input_type,
+):
+    strides = (1, 1)
+    pads = (0, 0, 0, 0)
+    dilations = (1, 1)
+    data_format = str(data_format, ""utf-8"")
+    x = hbir.transpose(x, [0, 2, 3, 1])
+    w = hbir.transpose(w, [0, 2, 3, 1])
+    x = hbir.conv2d(x, w, strides, pads, dilations, channel_group, bias=b)
+    x = hbir.transpose(x, [0, 3, 1, 2], output_type=y)
+    return x","hbir.transpose
+hbir.transpose
+hbir.conv2d
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.conv2d': {'input': ['{Type: int8, int16; input and weight cannot both be int16}\n{Shape: [*,H,W,C]}\n{Dim: * ∈ [1, 4096]; H,W,C ∈ [1, 65536]}'], 'weight': ['{Type: int8, int16; input and weight cannot both be int16}\n{Shape: [N,KH,KW,C]}\n{Dim: C ∈ [1, 8192]; KH,KW ∈ [1, 31]; N ∈ [1, 65536] if fout is the last layer of conv else [1, 8192]}\n{Size: KH × KW × C ∈ [1, 65536]}'], 'bias': ['{Type: f32}'], 'output': ['{Type: int8, int16, int32}\n{Other constraints: Same as fin}'], 'stride': ['{Shape: [SH,SW]}\n{Dim: SH,SW ∈ [1, 256]; SH,SW ∈ {1} if dilation &gt; 1}'], 'pad': ['{Shape: [P_top,P_left,P_bottom,P_right]}\n{Dim: P_top,P_bottom ∈ [-H/2, 256], P_left,P_right ∈ [-W/2, 256]}'], 'groupNum': ['{fin.c is divisible by group number}'], 'dilation': ['{Shape: [DH,DW]}\n{Dim: DH,DW ∈ [1, 18]}'], 'others': ['{Stride only support odd number and 2 when conv is a int16 depthwise conv}\n{For each group, fin.c ∈ [1, 8192], KH × KW × fin.c ∈ [1, 65535], fin.c = C when group = 1}']}}"
+HzReluX,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    clip_value,
+    data_format=""NCHW"",
+):
+    if data_format == ""NCHW"":
+        x = hbir.transpose(x, [0, 2, 3, 1])
+    max_res = hbir.max(x, np.array([0]).astype(np.float32), output_type=y)
+    ret = hbir.min(
+        max_res, np.array([clip_value]).astype(np.float32), output_type=y
+    )
+    if data_format == ""NCHW"":
+        ret = hbir.transpose(ret, [0, 3, 1, 2], output_type=y)
+    return ret","hbir.transpose
+hbir.max
+hbir.min
+hbir.transpose
+","{'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.max': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}, 'hbir.min': {'lhs': ['{Type: int8, int16}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}}"
+HzRsqrt,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    lhs: mlir.Value,
+    *,
+    epsilon=0,
+    is_sqrt_add_reciprocal=0,
+):
+    epsilon = np.array([epsilon]).astype(np.float32)
+    if is_sqrt_add_reciprocal == 0:
+        lhs = hbir.add(lhs, epsilon, output_type=y)
+        lhs = hbir.sqrt(lhs, output_type=y)
+        lhs = hbir.reciprocal(lhs, output_type=y)
+    else:
+        lhs = hbir.sqrt(lhs, output_type=y)
+        lhs = hbir.add(lhs, epsilon, output_type=y)
+        lhs = hbir.reciprocal(lhs, output_type=y)
+    return lhs","hbir.add
+hbir.sqrt
+hbir.reciprocal
+hbir.sqrt
+hbir.add
+hbir.reciprocal
+","{'hbir.add': {'lhs': ['{Type: int8, int16, int32, if type is int32, this hbir.add op must be fusible to a Conv op}\n{Shape: [*]}'], 'rhs': ['{Same as lhs}'], 'output': ['{Same as lhs}']}, 'hbir.sqrt': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}, 'hbir.reciprocal': {'input': ['{Type: int8, int16}\n{Shape: [*]}'], 'output': ['{Same as input}']}}"
+HzScatter,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    coords: mlir.Value,
+    sizes: List[int],
+):
+    # ptq 'sizes' is nhwc already, so do not transpose the value
+    if len(sizes) != 4:
+        raise ValueError(f""Only support 4D output shape, given {len(sizes)}"")
+    res = hbir.point_pillar_scatter(x, coords, sizes)
+    return nhwc_to_nchw(res)","hbir.point_pillar_scatter
+",{'hbir.point_pillar_scatter': 'Unsupported'}
+HzSoftmax,"//horizon
+def emit_mlir_op(
+    self, adaptor: NodeAdaptor, y: mlir.Type, x: mlir.Value, *, axis=-1
+):
+    return hbir.softmax(x, axis, output_type=y)","hbir.softmax
+",{'hbir.softmax': 'Unsupported'}
+HzSpaceToDepthConvertor,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    x: mlir.Value,
+    *,
+    block_height,
+    block_width,
+):
+    if block_height != block_width:
+        raise ValueError(
+            f""Operator HzSpaceToDepth does not support block height and weight not equal: {block_height} vs {block_width}""
+        )
+    input_dim = len(adaptor.operands[0].type.shape)
+    if input_dim != 4:
+        raise ValueError(
+            f""Operator HzSpaceToDepth does not support input_dim not euqal to 4, got {input_dim}""
+        )
+    n, c, h, w = adaptor.operands[0].type.shape
+    x = hbir.reshape(
+        x, (n, c, h // block_height, block_height, w // block_width, block_width)
+    )
+    x = hbir.transpose(x, [0, 3, 5, 1, 2, 4])
+    return hbir.reshape(
+        x,
+        (n, c * (block_height * block_width), h // block_height, w // block_width),
+        output_type=y,
+    )","hbir.reshape
+hbir.transpose
+hbir.reshape
+","{'hbir.reshape': {'input': ['{No limits}'], 'output': ['{Same as input}']}, 'hbir.transpose': {'input': ['{No limits}'], 'output': ['{Same as input}']}}"
+PyOp,"//horizon
+def emit_mlir_op(
+    self,
+    adaptor: NodeAdaptor,
+    y: mlir.Type,
+    *args,
+    class_name: mlir.Value,
+    compute: mlir.Value,
+    ext_compute: mlir.Value,
+    input_types: mlir.Value,
+    module: mlir.Value,
+    output_shape: mlir.Value,
+    output_types: mlir.Value,
+):
+    ext_compute = ext_compute if type(ext_compute) == str else ext_compute.decode()
+
+    module = module if type(module) == str else module.decode()
+
+    srcPath = os.getcwd() + ""/"" + ""/"".join(module.split(""."")) + "".py""
+    entryFuncName = ext_compute
+    return hbir.custom(
+        args, srcPath, entryFuncName, outputs_type=y if isinstance(y, list) else [y]
+    )","hbir.custom
+",{'hbir.custom': 'Unsupported'}

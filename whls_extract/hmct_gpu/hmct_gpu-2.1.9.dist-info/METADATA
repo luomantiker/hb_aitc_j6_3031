@@ -1,0 +1,26 @@
+Metadata-Version: 2.1
+Name: hmct-gpu
+Version: 2.1.9
+Summary: Horizon Model Convert
+Author: Horizon Robotics
+Requires-Dist: onnxruntime-gpu
+Requires-Dist: onnxruntime-extensions ==0.10.1
+Requires-Dist: opencv-python
+Requires-Dist: onnx ==1.15.0
+Requires-Dist: Pillow
+Requires-Dist: protobuf ==3.20.3
+Requires-Dist: pydot
+Requires-Dist: scipy
+Requires-Dist: six
+Requires-Dist: tabulate
+Requires-Dist: torch
+Requires-Dist: tqdm
+Requires-Dist: Click
+Requires-Dist: msgpack-numpy
+Requires-Dist: multiprocess
+Requires-Dist: numpy ==1.23.0 ; python_version == "3.10"
+Requires-Dist: numpy ==1.24.2 ; python_version == "3.11"
+Requires-Dist: numpy ==1.23.0 ; python_version == "3.8"
+Requires-Dist: matplotlib <=3.5.3 ; python_version == "3.8"
+Requires-Dist: matplotlib ; python_version >= "3.10"
+

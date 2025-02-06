@@ -1,0 +1,1 @@
+{"extensions": {"python.details": {"contacts": [{"name": "Horizon Robotics, Inc", "role": "author"}]}}, "extras": ["RemoteBPU"], "generator": "bdist_wheel (0.30.0)", "metadata_version": "2.0", "name": "hbdk4-compiler", "run_requires": [{"requires": ["netron (>=6.0.2)", "numpy"]}, {"extra": "RemoteBPU", "requires": ["paramiko"]}], "summary": "HBDK4 Compiler", "version": "4.1.17"}

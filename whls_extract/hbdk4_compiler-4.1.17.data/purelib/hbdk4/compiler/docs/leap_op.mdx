@@ -1,0 +1,129 @@
+## `hbir.custom` (::mlir::hbdk::hbir::CustomOp)
+
+HBIR custom op
+
+CPU custom operator placeholder.
+
+
+------
+
+Parameters:
+* inputs - tensor inputs, which type is list
+* Other non-tensor arguments for CPU operators
+
+Returns:
+* outputs - list of tensor
+
+Traits: CommonVerifier, LeapOp, Misc
+
+Interfaces: HBTLExecutable, HbdkExecutorInterface, NoMemoryEffect (MemoryEffectOpInterface), Perf, SchedInterface, SchedTemp, ShapeInference
+
+Effects: MemoryEffects::Effect{}
+
+### Attributes:
+
+| Attribute | MLIR Type | Description |
+| :-------: | :-------: | ----------- |
+| `srcPath` | ::mlir::StringAttr | string attribute
+| `entryFuncName` | ::mlir::StringAttr | string attribute
+| `includeDirs` | ::mlir::StringAttr | string attribute
+| `libraryDirs` | ::mlir::StringAttr | string attribute
+| `extraCompileArgs` | ::mlir::StringAttr | string attribute
+| `extraLinkArgs` | ::mlir::StringAttr | string attribute
+| `runtimeLibraryDirs` | ::mlir::StringAttr | string attribute
+
+### Operands:
+
+| Operand | Description |
+| :-----: | ----------- |
+| `inputs` | variadic of tensor of 64-bit float or 32-bit float or 16-bit float or bfloat16 type or 8-bit signed integer or 16-bit signed integer or 32-bit signed integer or 64-bit signed integer or 8-bit unsigned integer or 16-bit unsigned integer or 32-bit unsigned integer or 64-bit unsigned integer or  or  values
+
+### Results:
+
+| Result | Description |
+| :----: | ----------- |
+| `outputs` | variadic of tensor of 64-bit float or 32-bit float or 16-bit float or bfloat16 type or 8-bit signed integer or 16-bit signed integer or 32-bit signed integer or 64-bit signed integer or 8-bit unsigned integer or 16-bit unsigned integer or 32-bit unsigned integer or 64-bit unsigned integer or  or  values
+
+
+## `hbir.image_convert` (::mlir::hbdk::hbir::ImageConvertOp)
+
+Image format conversion, such as NV12 to YUV444.
+
+Convert images from various forms into tensor and record image information.
+
+------
+
+Parameters:
+* inputs - input image: 8-bit unsigned
+* mode - the source image format. Currently, only support "NV12"
+* output_type - output image data type: 8-bit signed, 8-bit unsigned
+
+Traits: CommonVerifier, LeapOp, Misc
+
+Interfaces: HBTLExecutable, HbdkExecutorInterface, HbdkInferType, Layout, NoMemoryEffect (MemoryEffectOpInterface), NonBatchAxesInfer, Perf, Quantizable, SchedInterface, SchedTemp, ShapeInference
+
+Effects: MemoryEffects::Effect{}
+
+### Attributes:
+
+| Attribute | MLIR Type | Description |
+| :-------: | :-------: | ----------- |
+| `mode` | ::mlir::hbdk::ImageConvertModeAttr | image convert mode
+
+### Operands:
+
+| Operand | Description |
+| :-----: | ----------- |
+| `inputs` | variadic of tensor of 8-bit unsigned integer values or none type
+
+### Results:
+
+| Result | Description |
+| :----: | ----------- |
+| `output` | tensor of 64-bit float or 32-bit float or 16-bit float or bfloat16 type or 8-bit signed integer or 16-bit signed integer or 32-bit signed integer or 64-bit signed integer or 8-bit unsigned integer or 16-bit unsigned integer or 32-bit unsigned integer or 64-bit unsigned integer or  values or none type
+
+
+## `hbir.image_preprocess` (::mlir::hbdk::hbir::ImagePreProcessOp)
+
+Image preprocess, convert to bgr/rgb then normalize.
+
+Convert input to rgb/bgr then normalize with given mean and standard deviation
+
+------
+
+Parameters:
+* input - input image(yuv or rgb/bgr), 8-bit singed/unsigned
+* csc - the color scale conversion mode. The modes are "SKIP", "YUVBT601FULL2RGB"(default), "YUVBT601FULL2BGR", "YUVBT601VIDEO2RGB", "YUVBT601VIDEO2BGR", "RGB2BGR", "BGR2RGB"
+* divisor - divisor when convert from int to float
+* mean - mean per channel in normalization
+* sd - standard deviation per channel in normalization
+* output_type - float32 type
+
+Traits: CommonVerifier, LeapOp, Misc, NoFuseFp16TypeLike
+
+Interfaces: HBTLExecutable, HbdkExecutorInterface, HbdkInferType, NoMemoryEffect (MemoryEffectOpInterface), Perf, Quantizable, SchedInterface, SchedTemp
+
+Effects: MemoryEffects::Effect{}
+
+### Attributes:
+
+| Attribute | MLIR Type | Description |
+| :-------: | :-------: | ----------- |
+| `csc` | ::mlir::hbdk::CSCModeAttr | color scale conversion mode
+| `divisor` | ::mlir::IntegerAttr | 64-bit signless integer attribute
+| `mean` | ::mlir::ArrayAttr | 64-bit float array attribute
+| `sd` | ::mlir::ArrayAttr | 64-bit float array attribute
+
+### Operands:
+
+| Operand | Description |
+| :-----: | ----------- |
+| `input` | tensor of 8-bit signed integer or 8-bit unsigned integer values or none type
+
+### Results:
+
+| Result | Description |
+| :----: | ----------- |
+| `output` | tensor of 64-bit float or 32-bit float or 16-bit float or bfloat16 type or  values or none type
+
+

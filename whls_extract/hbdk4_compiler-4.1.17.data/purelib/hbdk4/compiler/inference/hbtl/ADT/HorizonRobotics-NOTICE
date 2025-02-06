@@ -1,0 +1,11 @@
+================================================================================
+The following files may have been modified by Horizon Robotics.
+================================================================================
+
+ArrayRef.h
+iterator.h
+iterator_range.h
+Optional.h
+STLExtras.h
+STLForwardCompat.h
+STLFunctionalExtras.h

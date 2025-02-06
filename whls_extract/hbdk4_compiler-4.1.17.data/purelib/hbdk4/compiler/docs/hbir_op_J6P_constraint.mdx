@@ -1,0 +1,3387 @@
+# HBIR Operator Constraint in target J6P
+
+## `hbir.abs` (::mlir::hbdk::hbir::AbsOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16, f16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.acos` (::mlir::hbdk::hbir::AcosOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.acosh` (::mlir::hbdk::hbir::AcoshOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.add` (::mlir::hbdk::hbir::AddOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16, f16, int32, if type is int32, this hbir.add op must be fusible to a Conv op</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported on vpu
+
+
+## `hbir.asin` (::mlir::hbdk::hbir::AsinOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.asinh` (::mlir::hbdk::hbir::AsinhOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.atan` (::mlir::hbdk::hbir::AtanOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.atanh` (::mlir::hbdk::hbir::AtanhOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.avg_pool` (::mlir::hbdk::hbir::AvgPoolOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*,H,W,C] or [*,L,C]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+    <tr>
+        <td>kernel</td>
+        <td>
+            <li>Shape: [KH,KW] or [KL]</li>
+            <li>Dim: KH, KW, KL ∈ [1, 256], avgPool: KH*KW*bitWidth/8 <= 24576, maxPool: KH*KW <= 32768</li>
+        </td>
+    </tr>
+    <tr>
+        <td>stride</td>
+        <td>
+            <li>Shape: [SH,SW] or [SL]</li>
+            <li>Dim: SH, SW, SL ∈ [1, 256]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>pad</td>
+        <td>
+            <li>Shape: [PH_BEGIN,PW_BEGIN,PH_END,PW_END] or [PL_BEGIN,PL_END]</li>
+            <li>PH_BEGIN,PW_BEGIN,PL_BEGIN,PH_END,PW_END,PL_END ∈ [-255, 256]</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.batchnorm` (::mlir::hbdk::hbir::BatchNormOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*,H,W,C]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>mean</td>
+        <td>
+            <li>Type: f32</li>
+            <li>Shape: [C]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>var</td>
+        <td>
+            <li>Type: f32</li>
+            <li>Shape: [C]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>weight</td>
+        <td>
+            <li>Type: f32</li>
+            <li>Shape: [C]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>bias</td>
+        <td>
+            <li>Type: f32</li>
+            <li>Shape: [C]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.bev_pool_v2` (::mlir::hbdk::hbir::BevPoolV2Op)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.bitshift` (::mlir::hbdk::hbir::BitShiftOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>input</td>
+      <td>
+          <li>Type: int8, int16</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Same as input</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.bitwise_and` (::mlir::hbdk::hbir::BitwiseAndOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.bitwise_not` (::mlir::hbdk::hbir::BitwiseNotOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Type: int8</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.bitwise_or` (::mlir::hbdk::hbir::BitwiseOrOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.bitwise_xor` (::mlir::hbdk::hbir::BitwiseXorOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.cast_type` (::mlir::hbdk::hbir::CastTypeOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16, bool8</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported on vpu
+
+
+## `hbir.ceil` (::mlir::hbdk::hbir::CeilOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.clip` (::mlir::hbdk::hbir::ClipOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.concat` (::mlir::hbdk::hbir::ConcatOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Arg Number: input number ∈ [1, 1024]</li>
+            <li>Dim: all dims < 131072 </li>
+            <li>size < 2G</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.constant` (::mlir::hbdk::hbir::ConstantOp)
+
+### BPU constraint:
+
+No limits
+### VPU constraint:
+
+No limits
+
+
+## `hbir.conv2d` (::mlir::hbdk::hbir::Conv2dOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16; input and weight cannot both be int16</li>
+            <li>Shape: [*,H,W,C]</li>
+            <li>Dim: * ∈ [1, 4096]; H,W,C ∈ [1, 65536]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>weight</td>
+        <td>
+            <li>Type: int8, int16; input and weight cannot both be int16</li>
+            <li>Shape: [N,KH,KW,C]</li>
+            <li>Dim: C ∈ [1, 8192]; KH,KW ∈ [1, 31]; N ∈ [1, 65536] if fout is the last layer of conv else [1, 8192]</li>
+            <li>Size: KH &times KW &times C ∈ [1, 65536]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>bias</td>
+        <td>
+            <li>Type: f32</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Type: int8, int16, int32</li>
+            <li>Other constraints: Same as fin</li>
+        </td>
+    </tr>
+    <tr>
+        <td>stride</td>
+        <td>
+            <li>Shape: [SH,SW]</li>
+            <li>Dim: SH,SW ∈ [1, 256]; SH,SW ∈ {1} if dilation > 1</li>
+        </td>
+    </tr>
+    <tr>
+        <td>pad</td>
+        <td>
+            <li>Shape: [P_top,P_left,P_bottom,P_right]</li>
+            <li>Dim: P_top,P_bottom ∈ [-H/2, 256], P_left,P_right ∈ [-W/2, 256]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>groupNum</td>
+        <td>
+            <li>fin.c is divisible by group number</li>
+        </td>
+    </tr>
+    <tr>
+        <td>dilation</td>
+        <td>
+            <li>Shape: [DH,DW]</li>
+            <li>Dim: DH,DW ∈ [1, 18]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>others</td>
+        <td>
+          <li>Stride only support odd number and 2 when conv is a int16 depthwise conv</li>
+          <li>For each group, fin.c ∈ [1, 8192], KH &times KW &times fin.c ∈ [1, 65535], fin.c = C when group = 1</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.conv3d` (::mlir::hbdk::hbir::Conv3dOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8</li>
+            <li>Shape: [*,D,H,W,C]</li>
+            <li>Dim: * ∈ [1, 128]; D,H,W ∈ [1, 65536]; C ∈ [1, 4096];</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Type: int8</li>
+            <li>Shape: [N,KD,KH,KW,C]</li>
+            <li>N ∈ [1, 65536]; KD,KH,KW ∈ [1, 9]; Dim: C ∈ [1, 4096];</li>
+            <li>Size: KD &times KH &times KW &times C ∈ [1, 131072]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>bias</td>
+        <td>
+            <li>Type: f32</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+    <tr>
+        <td>stride</td>
+        <td>
+            <li>Shape: [SD,SH,SW]</li>
+            <li>Dim: SD,SH,SW must be 1 or 2 and equal to each other.</li>
+        </td>
+    </tr>
+    <tr>
+        <td>pad</td>
+        <td>
+            <li>Shape: [P_front, P_top, P_left, P_back, P_bottom, P_right]</li>
+            <li>Dim: P_front,P_back ∈ [0, KD/2], P_top,P_bottom ∈ [0, KH/2], P_left,P_right ∈ [0, KW/2]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>groupNum</td>
+        <td>
+            <li>fin.c is divisible by group number</li>
+        </td>
+    </tr>
+    <tr>
+        <td>dilation</td>
+        <td>
+            <li>Shape: [DD,DH,DW]</li>
+            <li>DD,DH,DW = 1 when group number more than 1</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.conv` (::mlir::hbdk::hbir::ConvOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>--conv 1d--</li>
+            <li>Type: int8, int16; input and weight cannot both be int16;</li>
+            <li>Shape: [*,L,C]</li>
+            <li>Dim: * ∈ [1, 4096]; L,C ∈ [1, 65536]</li>
+            <li>--conv 2d--</li>
+            <li>Type: int8, int16; input and weight cannot both be int16;</li>
+            <li>Shape: [*,H,W,C]</li>
+            <li>Dim: * ∈ [1, 4096]; H,W,C ∈ [1, 65536]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>weight</td>
+        <td>
+            <li>--conv 1d--</li>
+            <li>Type: int8, int16; input and weight cannot both be int16</li>
+            <li>Shape: [N,KL,C]</li>
+            <li>Dim: C ∈ [1, 8192]; KL ∈ [1, 31]; N ∈ [1, 65536] if fout is the last layer of conv else [1, 8192]</li>
+            <li>Size: KL &times C ∈ [1, 65536]</li>
+            <li>--conv 2d--</li>
+            <li>Type: int8, int16; input and weight cannot both be int16</li>
+            <li>Shape: [N,KH,KW,C]</li>
+            <li>Dim: C ∈ [1, 8192]; KH,KW ∈ [1, 31]; N ∈ [1, 65536] if fout is the last layer of conv else [1, 8192]</li>
+            <li>Size: KH &times KW &times C ∈ [1, 65536]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>bias</td>
+        <td>
+            <li>Type: f32</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>--conv 1d--</li>
+            <li>Type: int8, int16, int32</li>
+            <li>Shape: [*,L,C]</li>
+            <li>Dim: * ∈ [1, 4096]; L,C ∈ [1, 65536]</li>
+            <li>--conv 2d--</li>
+            <li>Type: int8, int16, int32</li>
+            <li>Shape: [*,H,W,C]</li>
+            <li>Dim: * ∈ [1, 4096]; H,W,C ∈ [1, 65536]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>stride</td>
+        <td>
+            <li>--conv 1d--</li>
+            <li>Shape: [SL]</li>
+            <li>Dim: SL ∈ [1, 256]; SL ∈ {1} if dilation > 1</li>
+            <li>--conv 2d--</li>
+            <li>Shape: [SH,SW]</li>
+            <li>Dim: SH,SW ∈ [1, 256]; SH,SW ∈ {1} if dilation > 1</li>
+        </td>
+    </tr>
+    <tr>
+        <td>pad</td>
+        <td>
+            <li>--conv 1d--</li>
+            <li>Shape: [P_left,P_right]</li>
+            <li>Dim: P_left,P_right ∈ [-L/2, 256]</li>
+            <li>--conv 2d--</li>
+            <li>Shape: [P_top,P_left,P_bottom,P_right]</li>
+            <li>Dim: P_top,P_bottom ∈ [-H/2, 256], P_left,P_right ∈ [-W/2, 256]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>groupNum</td>
+        <td>
+            <li>fin.c is divisible by group number</li>
+        </td>
+    </tr>
+    <tr>
+        <td>dilation</td>
+        <td>
+            <li>--conv 1d--</li>
+            <li>Shape: [DL]</li>
+            <li>Dim: DL ∈ [1, 18]</li>
+            <li>--conv 2d--</li>
+            <li>Shape: [DH,DW]</li>
+            <li>Dim: DH,DW ∈ [1, 18]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>others</td>
+        <td>
+          <li>--conv 1d--</li>
+          <li>Stride only support odd number and 2 when conv is a int16 depthwise conv</li>
+          <li>For each group, fin.c ∈ [1, 8192], KL &times fin.c ∈ [1, 65535], fin.c = C when group = 1</li>
+          <li>--conv 2d--</li>
+          <li>Stride only support odd number and 2 when conv is a int16 depthwise conv</li>
+          <li>For each group, fin.c ∈ [1, 8192], KH &times KW &times fin.c ∈ [1, 65535], fin.c = C when group = 1</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.convtranspose` (::mlir::hbdk::hbir::ConvTransposeOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16; input and weight cannot both be int16</li>
+            <li>1d_Shape: [*,W,C]</li>
+            <li>1d_Dim: * ∈ [1, 128]; W ∈ [1, 65536]; C ∈ [1, 2048]</li>
+            <li>2d_Shape: [*,H,W,C]</li>
+            <li>2d_Dim: * ∈ [1, 128]; H,W ∈ [1, 65536]; C ∈ [1, 2048]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>weight</td>
+        <td>
+            <li>Type: int8, int16; input and weight cannot both be int16</li>
+            <li>1d_Shape: [N,KW,C]</li>
+            <li>1d_Dim: N,C ∈ [1, 2048]; KW ∈ [1, 14]</li>
+            <li>1d_Size: KW &times C ∈ [1, 65536]</li>
+            <li>2d_Shape: [N,KH,KW,C]</li>
+            <li>2d_Dim: N,C ∈ [1, 2048]; KH,KW ∈ [1, 14]; KH,KW cannot both be 1</li>
+            <li>2d_Size: KH &times KW &times C ∈ [1, 65536]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>bias</td>
+        <td>
+            <li>Type: f32</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input, the type additionally supports int32</li>
+        </td>
+    </tr>
+    <tr>
+        <td>stride</td>
+        <td>
+            <li>1d_Shape: [SW]</li>
+            <li>1d_Dim: SW ∈ [1, 14];</li>
+            <li>2d_Shape: [SH,SW]</li>
+            <li>2d_Dim: SH,SW ∈ [1, 14];</li>
+        </td>
+    </tr>
+    <tr>
+        <td>pad</td>
+        <td>
+            <li>1d_Shape: [P_left,P_bottom]</li>
+            <li>1d_Dim: P_left,P_bottom ∈ [0, 256]</li>
+            <li>2d_Shape: [P_top,P_left,P_bottom,P_right]</li>
+            <li>2d_Dim: P_top,P_left,P_bottom,P_right ∈ [0, 256]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>dilation</td>
+        <td>
+            <li>1d_Shape: [DW]</li>
+            <li>1d_Dim: DW ∈ {1}</li>
+            <li>2d_Shape: [DH,DW]</li>
+            <li>2d_Dim: DH,DW ∈ {1}</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.cos` (::mlir::hbdk::hbir::CosOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.cosh` (::mlir::hbdk::hbir::CoshOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.cumsum` (::mlir::hbdk::hbir::CumSumOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*, dim[axis], *]</li>
+            <li>Dim: * ∈ [1, 65536]; dim[axis] ∈ [1, 8192]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Type: int8, int16, int32</li>
+            <li>Shape/Dim: same with input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.custom` (::mlir::hbdk::hbir::CustomOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.deform_conv2d` (::mlir::hbdk::hbir::DeformConv2dOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8</li>
+            <li>Shape: [*,H,W,C]</li>
+            <li>Dim: H,W ∈ [1, 1024]; H &times W ≤ 720 &times 1024; other dims ∈ [1, 65536]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>offset</td>
+        <td>
+            <li>Type: int16</li>
+            <li>Shape: [*,OH,OW,2 &times offsetGroupNum &times KH &times KW]</li>
+            <li>Size: 2 &times offsetGroupNum &times KH &times KW ∈ [2, 256], OH &times KH &times OW &times KW ≤ 720 &times 1024</li>
+        </td>
+    </tr>
+    <tr>
+        <td>mask</td>
+        <td>
+            <li>Type: int8</li>
+            <li>Shape: [*,OH,OW,offsetGroupNum &times KH &times KW]</li>
+            <li>Size: offsetGroupNum &times KH &times KW ∈ [1, 128]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>weight</td>
+        <td>
+            <li>Type: int8</li>
+            <li>Shape: [N,KH,KW,C]</li>
+            <li>Dim: C ∈ [1, 8192]; KH,KW ∈ [1, 8]; N ∈ [1, 4096]</li>
+            <li>Size: KH &times KW &times C ∈ [1, 65536]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>bias</td>
+        <td>
+            <li>Type: f32</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Type: int8, int16, int32</li>
+            <li>Other constraints: Same as fin</li>
+        </td>
+    </tr>
+    <tr>
+        <td>stride</td>
+        <td>
+            <li>Shape: [SH,SW]</li>
+            <li>Dim: SH,SW ∈ [1]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>pad</td>
+        <td>
+            <li>Shape: [P_top,P_left,P_bottom,P_right]</li>
+            <li>Dim: P_top,P_bottom ∈ [-H/2, 256], P_left,P_right ∈ [-W/2, 256]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>groupNum</td>
+        <td>
+            <li>fin.c is divisible by group number</li>
+        </td>
+    </tr>
+    <tr>
+        <td>offsetGroupNum</td>
+        <td>
+            <li>fin.c is divisible by offset group number</li>
+            <li>Size: offsetGroupNum ∈ [1, 2]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>dilation</td>
+        <td>
+            <li>Shape: [DH,DW]</li>
+            <li>Dim: DH,DW ∈ [1]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>others</td>
+        <td>
+          <li>For each group, fin.c ∈ [1, 8192], KH &times KW &times fin.c ∈ [1, 65535], fin.c = C when group = 1</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.div` (::mlir::hbdk::hbir::DivOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.dpp` (::mlir::hbdk::hbir::DppOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>useBpuFilter</td>
+        <td>
+            <li>must be 1, otherwise run on CPU</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.dynamic_slice` (::mlir::hbdk::hbir::DynamicSliceOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.equal` (::mlir::hbdk::hbir::EqualOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>lhs</td>
+      <td>
+          <li>Type: int8, int16, f16, bool8</li>
+          <li>Shape: [*]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>rhs</td>
+      <td>
+          <li>Same as lhs</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Type: bool8</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.erf` (::mlir::hbdk::hbir::ErfOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.exp` (::mlir::hbdk::hbir::ExpOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.fake_cast` (::mlir::hbdk::hbir::FakeCastOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.filter` (::mlir::hbdk::hbir::FilterOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>input</td>
+      <td>
+          <li>Type: int8, int16</li>
+          <li>Shape: [*, H, W, C]</li>
+          <li>bpu filter batch dim must be 1 when rank4, input feature size should be less than sram/5, H,W must be in range (0, 32768)
+      </td>
+  </tr>
+  <tr>
+      <td>threshold</td>
+      <td>
+          <li>for int8 input, value should be in range [-128, 127], for int16 input, value should be in range[-32768, 32767]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>others</td>
+      <td>
+          <li>All ops between the filterData and the last layer of the model should be cpu ops</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.flip` (::mlir::hbdk::hbir::FlipOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16, int32</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.floor` (::mlir::hbdk::hbir::FloorOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.fpp` (::mlir::hbdk::hbir::FppOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.gelu` (::mlir::hbdk::hbir::GELUOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported on vpu
+
+
+## `hbir.gather_elements` (::mlir::hbdk::hbir::GatherElementsOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>input</td>
+      <td>
+          <li>Type: int8, int16, int32, float16, float32</li>
+          <li>Shape: [*]</li>
+          <li>Dim: select dim ∈ [1, 4096]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>indices</td>
+      <td>
+          <li>Type: int8, int16, int32, int64</li>
+          <li>Shape: [*] indices value should not be larger than 32768</li>
+          <li>The H, W coordinates of each channel must be the same</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Same as input except Dim constraints</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.gather_nd` (::mlir::hbdk::hbir::GatherNdOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.greater_equal` (::mlir::hbdk::hbir::GreaterEqualOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>lhs</td>
+      <td>
+          <li>Type: int8, int16, f16</li>
+          <li>Shape: [*]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>rhs</td>
+      <td>
+          <li>Same as lhs</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Type: bool8</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.greater` (::mlir::hbdk::hbir::GreaterOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>lhs</td>
+      <td>
+          <li>Type: int8, int16, f16</li>
+          <li>Shape: [*]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>rhs</td>
+      <td>
+          <li>Same as lhs</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Type: bool8</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.grid_sample` (::mlir::hbdk::hbir::GridSampleOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>input</td>
+      <td>
+          <li>Type: int8</li>
+          <li>Shape: [*,H,W,C]</li>
+          <li>Dim: dims ∈ [1, 65536], H and W cannot both be greater than 4096 at the same time</li>
+      </td>
+  </tr>
+  <tr>
+      <td>grid</td>
+      <td>
+          <li>Type: int16</li>
+          <li>Shape: [*,H,W,2]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Same as input except Dim constraints</li>
+      </td>
+  </tr>
+  <tr>
+      <td>mode</td>
+      <td>
+          <li>Only support bilinear and nearest</li>
+      </td>
+  </tr>
+  <tr>
+      <td>padding_mode</td>
+      <td>
+          <li>Only support zeros and border</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.identity` (::mlir::hbdk::hbir::IdentityOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.index` (::mlir::hbdk::hbir::IndexOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>input</td>
+      <td>
+          <li>Type: int8, int16, int32, float16, float32</li>
+          <li>Shape: [*]</li>
+          <li>Dim: select dim ∈ [1, 4096]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>index</td>
+      <td>
+          <li>Type: int8, int16, int32, int64</li>
+          <li>Shape: [*] index value should not be larger than 32768</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Same as input except Dim constraints</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.layernorm` (::mlir::hbdk::hbir::LayerNormOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+The type of inputs must be F16, and the type of outputs must be f16 or bool or i16(argmax).
+
+
+## `hbir.leaky_relu` (::mlir::hbdk::hbir::LeakyReLUOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.less_equal` (::mlir::hbdk::hbir::LessEqualOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>lhs</td>
+      <td>
+          <li>Type: int8, int16, f16</li>
+          <li>Shape: [*]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>rhs</td>
+      <td>
+          <li>Same as lhs</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Type: bool8</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.less` (::mlir::hbdk::hbir::LessOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>lhs</td>
+      <td>
+          <li>Type: int8, int16, f16</li>
+          <li>Shape: [*]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>rhs</td>
+      <td>
+          <li>Same as lhs</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Type: bool8</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.linear` (::mlir::hbdk::hbir::LinearOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16, input and weight cannot both be int16</li>
+            <li>Shape: [*,C_in]</li>
+            <li>Dim: *, C_in ∈ [1, 65536]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>weight</td>
+        <td>
+            <li>Type: int8, int16, input and weight cannot both be int16</li>
+            <li>Shape: [C_out, C_in]</li>
+            <li>Dim: C_in,C_out ∈ [1, 8192]; C_in &times C_out ∈ [1, 65536]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>bias</td>
+        <td>
+            <li>Type: f32</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Type: int8, int16, int32</li>
+            <li>Other constraints: Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.log` (::mlir::hbdk::hbir::LogOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.log_softmax` (::mlir::hbdk::hbir::LogSoftmaxOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.logical_and` (::mlir::hbdk::hbir::LogicalAndOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>lhs</td>
+      <td>
+          <li>Type: int8, int16, bool8</li>
+          <li>Shape: [*]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>rhs</td>
+      <td>
+          <li>Same as lhs</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Type: bool8</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.logical_not` (::mlir::hbdk::hbir::LogicalNotOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16, bool8</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Type: bool8</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.logical_or` (::mlir::hbdk::hbir::LogicalOrOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>lhs</td>
+      <td>
+          <li>Type: int8, int16, bool8</li>
+          <li>Shape: [*]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>rhs</td>
+      <td>
+          <li>Same as lhs</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Type: bool8</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.logical_xor` (::mlir::hbdk::hbir::LogicalXorOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>lhs</td>
+      <td>
+          <li>Type: int8, int16, bool8</li>
+          <li>Shape: [*]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>rhs</td>
+      <td>
+          <li>Same as lhs</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Type: bool8</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.masked_select` (::mlir::hbdk::hbir::MaskedSelectOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.matmul` (::mlir::hbdk::hbir::MatMulOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16; lhs and rhs cannot both be int16</li>
+            <li>Shape: [*,M,C]</li>
+            <li>Dim: * ∈ [1, 4096], M,C ∈ [1, 8192]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Type: int8, int16; lhs and rhs cannot both be int16</li>
+            <li>Shape: [*,C,N]</li>
+            <li>Dim: * ∈ [1, 4096]; C,N ∈ [1, 8192]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Type: int8, int16, int32</li>
+            <li>Shape: [*,M,N]</li>
+            <li>Other constraints: Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.max` (::mlir::hbdk::hbir::MaxOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16, f16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.max_pool` (::mlir::hbdk::hbir::MaxPoolOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16, f16</li>
+            <li>Shape: [*,H,W,C]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+    <tr>
+        <td>kernel</td>
+        <td>
+            <li>Shape: [KH,KW]</li>
+            <li>Dim: KH, KW ∈ [1, 256], avgPool: KH*KW*bitWidth/8 <= 32768, maxPool: KH*KW <= 32768</li>
+        </td>
+    </tr>
+    <tr>
+        <td>stride</td>
+        <td>
+            <li>Shape: [SH,SW]</li>
+            <li>Dim: SH, SW ∈ [1, 256]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>pad</td>
+        <td>
+            <li>Shape: [PH_BEGIN,PW_BEGIN,PH_END,PW_END]</li>
+            <li>PH_BEGIN,PW_BEGIN,PH_END,PW_END ∈ [-4, 256]</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.min` (::mlir::hbdk::hbir::MinOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16, f16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.mod` (::mlir::hbdk::hbir::ModOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.mul` (::mlir::hbdk::hbir::MulOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16, f16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported on vpu
+
+
+## `hbir.nan_to_num` (::mlir::hbdk::hbir::NanToNumOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.neg` (::mlir::hbdk::hbir::NegOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.nms` (::mlir::hbdk::hbir::NonMaxSuppressionOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.nonzero` (::mlir::hbdk::hbir::NonZeroOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.pad` (::mlir::hbdk::hbir::PadOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>input</td>
+      <td>
+          <li>Type: int64, uint64 and f64 are not supported when expansionMode is 'constant' else no constraints</li>
+          <li>Dim: all dims < 737280 when expansionMode is not 'constant' else no constraints</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Same as input</li>
+      </td>
+  </tr>
+    <tr>
+        <td>begin/end</td>
+        <td>
+            <li>Value should be in range [1, 1024]</li>
+        </td>
+    </tr>
+  </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.point_pillar_preprocess` (::mlir::hbdk::hbir::PointPillarPreProcessOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.point_pillar_scatter` (::mlir::hbdk::hbir::PointPillarScatterOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.pow` (::mlir::hbdk::hbir::PowOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.prelu` (::mlir::hbdk::hbir::PreluOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.relu` (::mlir::hbdk::hbir::ReLUOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16, int32</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.reciprocal` (::mlir::hbdk::hbir::ReciprocalOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.reduce_all` (::mlir::hbdk::hbir::ReduceAllOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.reduce_argmax` (::mlir::hbdk::hbir::ReduceArgmaxOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+            <li>Dim: reduce axis dim size ∈ [1, 65535]</li>
+            <li>Element : reduce Elements size ∈ [1, 65535]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.reduce_argmin` (::mlir::hbdk::hbir::ReduceArgminOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+            <li>Dim: reduce axis dim size ∈ [1, 65535]</li>
+            <li>Element : reduce Elements size ∈ [1, 65535]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.reduce_max` (::mlir::hbdk::hbir::ReduceMaxOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+            <li>Dim: reduce axis dim size ∈ [1, 65535]</li>
+            <li>Element : reduce Elements size ∈ [1, 65535]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.reduce_mean` (::mlir::hbdk::hbir::ReduceMeanOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+            <li>Dim: reduce axis dim size ∈ [1, 65535]</li>
+            <li>Element : reduce Elements size ∈ [1, 65535]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.reduce_min` (::mlir::hbdk::hbir::ReduceMinOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+            <li>Dim: reduce axis dim size ∈ [1, 65535]</li>
+            <li>Element : reduce Elements size ∈ [1, 65535]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.reduce_sum` (::mlir::hbdk::hbir::ReduceSumOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+            <li>Dim: reduce axis dim size ∈ [1, 65535]</li>
+            <li>Element : reduce Elements size ∈ [1, 65535]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input, ReduceArgMax/ReduceArgMin's output can be of type int32 or int64, as long as the size of the reduced axis can be represented using an int16 number</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.reshape` (::mlir::hbdk::hbir::ReshapeOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+          <li>No limits</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.resize2d` (::mlir::hbdk::hbir::Resize2dOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8</li>
+            <li>Shape: [*,H,W,C]</li>
+            <li>The integer part of step ∈ [-256, 255], otherwise the backend will be on cpu</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+    <tr>
+        <td>mode</td>
+        <td>
+            <li>Opset10: support nearest and bilinear</li>
+            <li>Opset11 and newer: support nearest, bilinear and bicubic</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.rle` (::mlir::hbdk::hbir::RleOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16 </li>
+            <li>rank must be 1</li>
+            <li>all dims < 3145728 </li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.roi_align` (::mlir::hbdk::hbir::RoiAlignOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.roll` (::mlir::hbdk::hbir::RollOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+          <li>No limits</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.round` (::mlir::hbdk::hbir::RoundOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.rpp_v2` (::mlir::hbdk::hbir::RppV2Op)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.rsqrt` (::mlir::hbdk::hbir::RsqrtOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.scatter_elements` (::mlir::hbdk::hbir::ScatterElementsOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.scatter_nd` (::mlir::hbdk::hbir::ScatterNDOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.select` (::mlir::hbdk::hbir::SelectOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+          <li>No limits</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.sigmoid` (::mlir::hbdk::hbir::SigmoidOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.sign` (::mlir::hbdk::hbir::SignOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.sin` (::mlir::hbdk::hbir::SinOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.sinh` (::mlir::hbdk::hbir::SinhOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.slice` (::mlir::hbdk::hbir::SliceOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>input</td>
+      <td>
+          <li>Dim: all dims < 2097152 </li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Same as input</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.slice_scatter` (::mlir::hbdk::hbir::SliceScatterOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>input</td>
+      <td>
+          <li>Dim: all dims < 2097152 </li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Same as input</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.softmax` (::mlir::hbdk::hbir::SoftmaxOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+The type of inputs must be F16, and the type of outputs must be f16 or bool or i16(argmax).
+
+
+## `hbir.softplus` (::mlir::hbdk::hbir::SoftplusOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.sort` (::mlir::hbdk::hbir::SortOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.sqrt` (::mlir::hbdk::hbir::SqrtOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.stack` (::mlir::hbdk::hbir::StackOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Arg Number: input number ∈ [1, 1024]</li>
+            <li>Dim: all dims < 131072 </li>
+            <li>size < 2G</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.sub` (::mlir::hbdk::hbir::SubOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+
+## `hbir.swish` (::mlir::hbdk::hbir::SwishOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.tan` (::mlir::hbdk::hbir::TanOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.tanh` (::mlir::hbdk::hbir::TanhOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+            <li>Type: int8, int16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.tile` (::mlir::hbdk::hbir::TileOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+          <li>No limits</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.topk` (::mlir::hbdk::hbir::TopkOp)
+
+### BPU constraint:
+
+Unsupported
+### VPU constraint:
+
+The type of inputs must be F16, and the type of outputs must be f16 or bool or i16(argmax).
+
+
+## `hbir.transpose` (::mlir::hbdk::hbir::TransposeOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>input</td>
+        <td>
+          <li>No limits</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as input</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.warp` (::mlir::hbdk::hbir::WarpOp)
+
+### BPU constraint:
+
+<table>
+  <tr>
+      <th>Features and Attributes</th>
+      <th>Constraints</th>
+  </tr>
+  <tr>
+      <td>input</td>
+      <td>
+          <li>Type: nearest mode supports int8, int16, int32, float16, float32; the others only support int8</li>
+          <li>Shape: [*,H,W,C]</li>
+          <li>Dim: dims ∈ [1, 65536], H and W cannot both be greater than 4096 at the same time</li>
+      </td>
+  </tr>
+  <tr>
+      <td>grid</td>
+      <td>
+          <li>Type: int16</li>
+          <li>Shape: [*,H,W,2]</li>
+      </td>
+  </tr>
+  <tr>
+      <td>output</td>
+      <td>
+          <li>Same as input except Dim constraints</li>
+      </td>
+  </tr>
+</table>
+
+### VPU constraint:
+
+Unsupported
+
+
+## `hbir.where` (::mlir::hbdk::hbir::WhereOp)
+
+### BPU constraint:
+
+<table>
+    <tr>
+        <th>Features and Attributes</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td>condition</td>
+        <td>
+            <li>Type: bool8</li>
+        </td>
+    </tr>
+    <tr>
+        <td>lhs</td>
+        <td>
+            <li>Type: int8, int16, f16</li>
+            <li>Shape: [*]</li>
+        </td>
+    </tr>
+    <tr>
+        <td>rhs</td>
+        <td>
+            <li>Type: int8, int16, f16</li>
+        </td>
+    </tr>
+    <tr>
+        <td>output</td>
+        <td>
+            <li>Same as lhs</li>
+        </td>
+    </tr>
+</table>
+
+### VPU constraint:
+
+The type of input must be F16, and the type of output must be f16 or bool or i16(argmax).
+
+

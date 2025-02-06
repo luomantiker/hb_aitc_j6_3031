@@ -1,0 +1,3 @@
+[console_scripts]
+hmct-debugger = hmct.tools.debug:debugger
+hmct-info = hmct.tools.print_calibration_info:cmd_main

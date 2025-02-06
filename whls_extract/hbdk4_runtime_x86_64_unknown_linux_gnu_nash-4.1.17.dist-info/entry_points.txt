@@ -1,0 +1,3 @@
+[console_scripts]
+hbrt4-disas = hbdk4.runtime.x86_64_unknown_linux_gnu.nash.entrypoint.hbrt4_disas:main
+hbrt4-run-model-nash = hbdk4.runtime.x86_64_unknown_linux_gnu.nash.entrypoint.hbrt4_run_model_nash:main

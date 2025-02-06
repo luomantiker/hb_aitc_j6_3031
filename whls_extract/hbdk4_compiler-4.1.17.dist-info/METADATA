@@ -1,0 +1,11 @@
+Metadata-Version: 2.0
+Name: hbdk4-compiler
+Version: 4.1.17
+Summary: HBDK4 Compiler
+Author: Horizon Robotics, Inc
+Provides-Extra: RemoteBPU
+Requires-Dist: numpy
+Requires-Dist: netron (>=6.0.2)
+Provides-Extra: RemoteBPU
+Requires-Dist: paramiko; extra == 'RemoteBPU'
+

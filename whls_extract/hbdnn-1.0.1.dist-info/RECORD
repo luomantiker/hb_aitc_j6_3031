@@ -1,0 +1,7 @@
+hbdnn/__init__.py,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+hbdnn/libhbdnn.so,sha256=Omef7JOJIStEbO5ZHxPO0qSckGFg_TlHeoTCBSbi1ww,33422632
+python/__init__.py,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+hbdnn-1.0.1.dist-info/METADATA,sha256=iosBTjesZ4ZVlSJMJ1IQ6gjXMgYIe6dIccJD3i_VPgw,169
+hbdnn-1.0.1.dist-info/WHEEL,sha256=eOLhNAGa2EW3wWl_TU484h7q1UNgy0JXjjoqKoxAAQc,92
+hbdnn-1.0.1.dist-info/top_level.txt,sha256=VppTPDQPbg57WhKsYY4rt2OtZQZmbi0YNxHxPL6TYuc,13
+hbdnn-1.0.1.dist-info/RECORD,,

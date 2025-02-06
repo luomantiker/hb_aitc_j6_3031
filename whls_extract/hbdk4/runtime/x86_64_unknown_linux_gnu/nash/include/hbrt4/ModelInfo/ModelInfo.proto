@@ -1,0 +1,316 @@
+// Model info for testing purpose
+
+syntax = "proto3";
+
+package hbrt4.minfo;
+
+/// The enum variants value matches
+/// "hbrt/hbrt4_public/include/hbrt4-c/Detail/Enums/DeviceEnum.h"
+enum BpuMarch {
+  BPU_MARCH_UNKNOWN = 0;
+  BPU_MARCH_BAYES2 = 3486274;
+  BPU_MARCH_BPU31 = 4338498;
+  BPU_MARCH_BPU25E = 4534850;
+  BPU_MARCH_BPU30G = 4535106;
+  BPU_MARCH_BPU30G2 = 5059394;
+  BPU_MARCH_BPU30P = 5256002;
+}
+
+message VersionSemantic {
+  uint32 major_num = 1;
+  uint32 minor_num = 2;
+  uint32 patch_num = 3;
+  string pre_release = 4;
+  string extra = 5;
+}
+
+message Version {
+  VersionSemantic semantic = 1;
+  string cstring = 2;
+  string commit_hash = 3;
+}
+
+message Hbm {
+  BpuMarch bpu_march = 1;
+  repeated Graph graphs = 2;
+  int64 num_graphs = 3;
+  HbmHeader header = 4;
+  repeated GraphGroup graph_groups = 5;
+  Description description = 6;
+}
+
+message HbmHeader {
+  BpuMarch bpu_march = 1;
+  Version toolkit_version = 2;
+  string build_id = 3;
+}
+
+message GraphGroup {
+  string name = 1;
+  repeated Graph graphs = 2;
+  int64 num_graphs = 3;
+  GraphGroupClassification classification = 4;
+}
+
+// The order of fields affects protobuf json printing order
+// Put them in convenient way for LLVM FileCheck
+// Simple field without ids of other fields first
+message Graph {
+  string name = 2;
+
+  repeated Memspace memspaces = 3;
+  int64 num_memspaces = 8;
+  repeated string memspace_names = 14;
+
+  repeated Variable variables = 4;
+  int64 num_variables = 9;
+  repeated string variable_names = 15;
+
+  repeated Node nodes = 5;
+  int64 num_nodes = 10;
+  repeated string node_names = 16;
+
+  repeated uint64 input_var_ids = 6;
+  int64 num_input_vars = 11;
+  repeated string input_var_names = 17;
+
+  repeated uint64 output_var_ids = 7;
+  int64 num_output_vars = 12;
+  repeated string output_var_names = 18;
+
+  Version toolkit_version = 13;
+
+  Description description = 19;
+  optional string compile_options = 20;
+
+  Description internal_description = 21;
+  map<string, string> envVars = 22;
+  string internal_name = 23;
+  optional string tree_spec = 24;
+}
+
+message Node {
+  uint64 id = 1;
+  string name = 2;
+  string operation_name = 3;
+  optional uint32 num_cores = 4;
+  DeviceCategory device = 5;
+  Duration estimate_latency = 6;
+
+  repeated uint64 memspace_ids = 7;
+  int64 num_memspaces = 13;
+  repeated string memspace_names = 19;
+
+  repeated uint64 input_var_ids = 8;
+  int64 num_input_vars = 14;
+  repeated string input_names = 20;
+
+  repeated uint64 output_var_ids = 9;
+  int64 num_output_vars = 15;
+  repeated string output_names = 21;
+
+  repeated NodeVariableInfo variables = 10;
+  int64 num_variables = 16;
+
+  repeated uint64 ancestor_node_ids = 11;
+  int64 num_ancestor_nodes = 17;
+
+  repeated uint64 parameter_var_ids = 12;
+  int64 num_parameters = 18;
+  repeated string parameter_names = 23;
+
+  optional string vpu_entry_func = 24;
+}
+
+enum GraphGroupClassification {
+  GRAPH_GROUP_CLASSIFICATION_UNKNOWN = 0;
+  GRAPH_GROUP_CLASSIFICATION_BATCH = 1;
+  GRAPH_GROUP_CLASSIFICATION_SINGLE = 2;
+};
+
+enum MemspaceUsage {
+  MEMSPACE_USAGE_UNKNOWN = 0;
+  MEMSPACE_USAGE_GRAPH_INPUT = 1;
+  MEMSPACE_USAGE_GRAPH_OUTPUT = 2;
+  MEMSPACE_USAGE_CONSTANT = 3;
+  MEMSPACE_USAGE_TEMPORARY = 4;
+  MEMSPACE_USAGE_INTERMEDIATE = 5;
+  MEMSPACE_USAGE_NODE_CACHE = 6;
+}
+
+message SizeRequirement {
+  optional uint64 fix_size = 1;
+  optional uint64 min_size = 2;
+}
+
+message Memspace {
+  uint64 id = 1;
+  string name = 2;
+  MemspaceUsage usage = 3;
+  optional uint64 size = 4;
+  optional uint64 alignment = 5;
+  SizeRequirement size_requirement = 6;
+}
+
+enum DeviceCategory {
+  DEVICE_CATEGORY_UNKNOWN = 0;
+  DEVICE_CATEGORY_BPU = 1;
+  DEVICE_CATEGORY_CPU = 2;
+}
+
+message NodeVariableInfo {
+  uint64 id = 1;
+  VariableNodeUsage usage = 2;
+  string name = 3;
+}
+
+enum VariableNodeUsage {
+  VARIABLE_NODE_USAGE_UNKNOWN = 0;
+  VARIABLE_NODE_USAGE_INPUT = 1;
+  VARIABLE_NODE_USAGE_OUTPUT = 2;
+  VARIABLE_NODE_USAGE_CONSTANT = 3;
+  VARIABLE_NODE_USAGE_TEMPORARY = 4;
+  VARIABLE_NODE_USAGE_NODE_CACHE = 6;
+}
+
+message Duration {
+  uint64 value = 1;
+  Unit unit = 2;
+}
+
+enum Unit {
+  UNIT_NANO = 0;
+  UNIT_MICRO = 1;
+  UNIT_MILLI = 2;
+  UNIT_ONE = 3;
+}
+
+message Type {
+  TypeTag type_tag = 1;
+  ArrayType array_type = 4;
+  TensorType tensor_type = 2;
+  uint64 id = 3;
+}
+
+enum TypeTag {
+  TYPE_TAG_UNKNOWN = 0;
+  TYPE_TAG_SI4X2 = 1;
+  TYPE_TAG_SI8 = 2;
+  TYPE_TAG_SI16 = 3;
+  TYPE_TAG_SI32 = 4;
+  TYPE_TAG_SI32_BIG_ENDIAN = 5;
+  TYPE_TAG_SI64 = 6;
+  TYPE_TAG_UI8 = 7;
+  TYPE_TAG_BOOL = 8;
+  TYPE_TAG_UI16 = 9;
+  TYPE_TAG_UI32 = 10;
+  TYPE_TAG_UI64 = 11;
+  TYPE_TAG_F16 = 12;
+  TYPE_TAG_F32 = 13;
+  TYPE_TAG_F64 = 14;
+  TYPE_TAG_VPU_BF16 = 15;
+  TYPE_TAG_VPU_F32 = 16;
+  TYPE_TAG_TENSOR = 17;
+  TYPE_TAG_TUPLE = 18;
+  TYPE_TAG_MEMORY = 19;
+  TYPE_TAG_ARRAY = 20;
+  TYPE_TAG_STRING = 21;
+}
+
+message ArrayType {
+  uint64 num_elements = 1;
+  TypeTag elem_type_tag = 2;
+}
+
+message TensorType {
+  TypeTag elem_type_tag = 1;
+  int64 num_dims = 6;
+  repeated int64 dims = 2;
+  int64 num_strides = 7;
+  repeated int64 strides = 3;
+  TensorEncoding encoding = 4;
+  QuantInfo quant_info = 5;
+  Type elem_type = 8;
+  QuantizationMethod quant_method = 9;
+}
+
+enum TensorEncoding {
+  TENSOR_ENCODING_UNKNOWN = 0;
+  TENSOR_ENCODING_DEFAULT = 1;
+  TENSOR_ENCODING_RLE = 2;
+}
+
+enum QuantizationMethod {
+  QUANTIZATION_METHOD_UNKNOWN = 0;
+  QUANTIZATION_METHOD_NONE = 1;
+  QUANTIZATION_METHOD_DEFAULT = 2;
+}
+
+message QuantInfo {
+  TypeTag expressed_type_tag = 1;
+  int64 num_scales = 7;
+  repeated float scales = 2;
+  int64 num_zero_points = 8;
+  repeated float zero_points = 3;
+  repeated int32 channel_axis = 4;
+  int32 storage_min = 5;
+  int32 storage_max = 6;
+}
+
+message BatchRange {
+  uint64 begin = 1;
+  uint64 end = 2;
+}
+
+enum VariableInputSemantic {
+  VARIABLE_INPUT_SEMANTIC_UNKNOWN = 0;
+  VARIABLE_INPUT_SEMANTIC_NORMAL = 1;
+  VARIABLE_INPUT_SEMANTIC_PYRAMID = 2;
+  VARIABLE_INPUT_SEMANTIC_RESIZER = 3;
+  VARIABLE_INPUT_SEMANTIC_IMAGE_Y = 4;
+  VARIABLE_INPUT_SEMANTIC_IMAGE_UV = 5;
+  VARIABLE_INPUT_SEMANTIC_IMAGE_ROI = 6;
+}
+
+enum SpecialOperator {
+  SPECIAL_OPERATOR_UNKNOWN = 0;
+  SPECIAL_OPERATOR_NORMAL = 1;
+  SPECIAL_OPERATOR_FILTER = 2;
+  SPECIAL_OPERATOR_RLE = 3;
+  SPECIAL_OPERATOR_DPP = 4;
+  SPECIAL_OPERATOR_ARGMAX = 5;
+}
+
+message Variable {
+  uint64 id = 1;
+  string name = 2;
+  BatchRange batch_range = 3;
+  int64 batch_stride = 4;
+  uint64 memspace_id = 5;
+  uint64 memspace_offset = 6;
+  Type type = 7;
+
+  int64 num_children = 8;
+  repeated string children_names = 9;
+  repeated uint64 children_ids = 11;
+
+  Description description = 10;
+
+  VariableInputSemantic input_semantic = 12;
+
+  bool is_constant = 13;
+
+  repeated int64 resizer_dest_dims = 14;
+  SpecialOperator defining_special_operator = 15;
+}
+
+enum DescriptionCategory {
+  DESCRIPTION_CATEGORY_STRING = 0;
+  DESCRIPTION_CATEGORY_BINARY = 1;
+}
+
+message Description {
+  DescriptionCategory category = 1;
+  optional string string_data = 2;
+  optional bytes bytes_data = 3;
+}

@@ -1,0 +1,11 @@
+add_library(HBTLCudaKernel SHARED Kernel.cu Unary.cpp Registry.cpp)
+target_include_directories(HBTLCudaKernel PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+target_link_directories(HBTLCudaKernel PRIVATE ${CUDAToolkit_LIBRARY_DIR})
+target_link_libraries(HBTLCudaKernel PRIVATE cudart_static rt
+                                             spdlog::spdlog_header_only hbtl)
+if(HBTL_HAVE_LIBDL)
+  target_link_libraries(HBTLCudaKernel PRIVATE dl)
+endif()
+if(HBDK_WHOLE_BUILD)
+  add_dependencies(hbtl-all HBTLCudaKernel)
+endif(HBDK_WHOLE_BUILD)

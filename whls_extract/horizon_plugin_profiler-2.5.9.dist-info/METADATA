@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: horizon-plugin-profiler
+Version: 2.5.9
+Summary: Profiler tools of horizon_plugin_pytorch
+Author: Horizon DeepLearning Platform
+Requires-Dist: numpy
+Requires-Dist: tabulate
+Requires-Dist: plotly
+Requires-Dist: Jinja2
+Requires-Dist: termcolor
+Requires-Dist: tqdm
+

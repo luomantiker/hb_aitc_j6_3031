@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>horizon_sparse_sensitivity</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="echarts.js"></script>
+  </head>
+  <body>
+    <div id="main" style="width: 100%; height: 100%;"></div>
+    <script type="text/javascript">
+      var sensitivity_dict = {{ sensitivity_dict }}
+      var myChart = echarts.init(document.getElementById('main'));
+      window.addEventListener('resize', function() {
+        myChart.resize();
+      });
+
+      var option = {
+        title: {
+          text: 'sparse_sensitivity',
+          x: 'center'
+        },
+        tooltip: {
+          trigger: 'item',
+          axisPointer: {
+            type: 'shadow',
+            shadowStyle: {
+              color: 'rgba(0, 0, 0, 0.2)'
+            }
+          },
+          backgroundColor: 'rgba(255, 255, 255, 0.8)'
+        },
+        dataZoom: [
+          {
+            id: 'dataZoomX',
+            type: 'slider',
+            xAxisIndex: [0],
+            filterMode: 'filter',
+            bottom: '5%',
+          },
+          {
+            id: 'dataZoomY',
+            type: 'slider',
+            yAxisIndex: [0],
+            filterMode: 'filter',
+            left: '5%',
+          },
+          {
+            type: 'inside'
+          }
+        ],
+        grid: {
+            y2: '11%',
+        },
+        legend: {
+          data: [],
+          bottom: '1%',
+          type: 'scroll',
+          width: '80%',
+        },
+        xAxis: {
+          type: 'category',
+          name: 'ratio',
+          splitLine: { show: true },
+          data: ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"],
+        },
+        yAxis:{
+            type: 'value',
+            name: 'metric',
+            data: [],
+        },
+        series: [],
+      };
+      for(var key in sensitivity_dict) {
+        layer_metric = sensitivity_dict[key]
+        option.legend.data.push(key)
+
+        option.series.push(
+          {
+            name: key,
+            type: 'line',
+            data: layer_metric,
+            triggerLineEvent: true,
+          },
+        )
+      }
+
+      myChart.setOption(option);
+    </script>
+  </body>
+</html>

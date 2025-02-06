@@ -1,0 +1,6 @@
+[console_scripts]
+hb_compile = horizon_tc_ui.hb_compile:main
+hb_config_generator = horizon_tc_ui.hb_config_generator:cmd_main
+hb_eval_preprocess = horizon_tc_ui.hb_eval_preprocess:cmd_main
+hb_model_info = horizon_tc_ui.hb_model_info:cmd_main
+hb_verifier = horizon_tc_ui.hb_verifier:cmd_main

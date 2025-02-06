@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: horizon-plugin-pytorch
+Version: 2.5.9+cu118.torch230
+Summary: Quantization aware training tools for horizon BPU
+Author: Horizon DeepLearning Platform
+Requires-Dist: numpy
+Requires-Dist: tabulate
+Requires-Dist: packaging
+Requires-Dist: netron (>=6.0.2)
+Requires-Dist: Jinja2
+Requires-Dist: termcolor
+

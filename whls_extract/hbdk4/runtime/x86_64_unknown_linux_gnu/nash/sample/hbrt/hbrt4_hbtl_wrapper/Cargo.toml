@@ -1,0 +1,15 @@
+[package]
+name = "hbrt4_hbtl_wrapper"
+edition.workspace = true
+authors.workspace = true
+version.workspace = true
+
+[dependencies]
+hbrt4_header.workspace = true
+hbrt4_log.workspace = true
+ndarray.workspace = true
+
+[build-dependencies]
+bindgen.workspace = true
+case.workspace = true
+hbrt4_build.workspace = true

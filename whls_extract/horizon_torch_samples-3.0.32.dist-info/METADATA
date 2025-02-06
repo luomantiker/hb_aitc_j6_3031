@@ -1,0 +1,108 @@
+Metadata-Version: 2.1
+Name: horizon-torch-samples
+Version: 3.0.32
+Summary: Horizon Algorithm Toolkit
+Home-page: UNKNOWN
+Author: HAT Contributors
+License: Unless required by applicable law or agreed to in writing, we provide 
+        the Software on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF 
+        ANY KIND, either express or implied, including, without limitation, 
+        any warranties of NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR 
+        A PARTICULAR PURPOSE. You are solely responsible for determining the
+        appropriateness of using the Software and assume any risks.
+        
+        In no event, whether in an action of tort, contract or otherwise, unless 
+        required by applicable law or agreed to in writing, shall we be liable 
+        to you for any damages, claim or other liability, including any direct, 
+        indirect, special, incidental, or consequential damages of any character 
+        arising as a result of or out of the use or inability to use the Software
+        (including but not limited to damages for loss of goodwill, work stoppage, 
+        computer failure or malfunction, or any and all other commercial damages 
+        or losses).
+        
+        This Software includes open source software, we shall not be liable for 
+        any damages, claim or other liability in connection with such open source
+        software.
+        
+        Copyright 2020  Horizon Robotics
+        
+        All rights reserved.
+        
+Platform: UNKNOWN
+License-File: LICENSE
+Requires-Dist: six
+Requires-Dist: lmdb
+Requires-Dist: addict
+Requires-Dist: aiohttp
+Requires-Dist: msgpack
+Requires-Dist: msgpack-numpy
+Requires-Dist: opencv-python==4.6.0.66
+Requires-Dist: pycocotools==2.0.3
+Requires-Dist: fsspec==2022.1.0
+Requires-Dist: timeout-decorator
+Requires-Dist: torchmetrics==0.5.0
+Requires-Dist: scipy==1.9.1
+Requires-Dist: tensorboard==2.11.1
+Requires-Dist: numba==0.56.4
+Requires-Dist: pandas==1.4.3
+Requires-Dist: tabulate
+Requires-Dist: scikit-learn
+Requires-Dist: lxml
+Requires-Dist: pyarrow
+Requires-Dist: Shapely==1.8.0
+Requires-Dist: protobuf<4.21.0
+Requires-Dist: redis>4.0
+Requires-Dist: h5py
+Requires-Dist: soundfile==0.11.0
+Requires-Dist: easydict
+Requires-Dist: pytorch-crf==0.7.2
+Requires-Dist: setuptools<=59.6.0
+Requires-Dist: matplotlib==3.5.3
+Requires-Dist: pyyaml
+Requires-Dist: motmetrics==1.4.0
+Requires-Dist: nuscenes-devkit==1.1.9
+Requires-Dist: pyquaternion==0.9.9
+Requires-Dist: dataclasses-json
+Requires-Dist: timm==0.9.2
+Requires-Dist: vtk==9.3.0
+Requires-Dist: av2==0.2.1
+Requires-Dist: geopandas==0.10.2
+Requires-Dist: fiona==1.9.6
+Requires-Dist: scikit-image==0.16.2; python_version < "3.10"
+Requires-Dist: scikit-image==0.19.0; python_version == "3.10"
+Provides-Extra: dev
+Requires-Dist: coverage; extra == "dev"
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-xdist; extra == "dev"
+Requires-Dist: pytest-pythonpath; extra == "dev"
+Requires-Dist: pytest-cov; extra == "dev"
+Requires-Dist: pytest-html; extra == "dev"
+Requires-Dist: pytest-repeat; extra == "dev"
+Requires-Dist: pytest-rerunfailures; extra == "dev"
+Requires-Dist: pytest-timeout; extra == "dev"
+Requires-Dist: pre-commit==2.13.0; extra == "dev"
+Requires-Dist: pre-commit-hooks==4.0.1; extra == "dev"
+Requires-Dist: isort==5.6.4; extra == "dev"
+Requires-Dist: flake8==3.9.2; extra == "dev"
+Requires-Dist: flake8-bugbear==21.4.3; extra == "dev"
+Requires-Dist: flake8-comprehensions==3.6.0; extra == "dev"
+Requires-Dist: flake8-tidy-imports==4.5.0; extra == "dev"
+Requires-Dist: autoflake==1.4; extra == "dev"
+Requires-Dist: black==21.7b0; extra == "dev"
+Requires-Dist: click==8.0.2; extra == "dev"
+Requires-Dist: tomli==1.2.3; extra == "dev"
+Requires-Dist: pydocstyle==6.1.1; extra == "dev"
+Requires-Dist: pep8-naming==0.12.1; extra == "dev"
+Requires-Dist: mypy==0.910; extra == "dev"
+Requires-Dist: sphinx==4.0.2; extra == "dev"
+Requires-Dist: sphinx-rtd-theme==1.1.1; extra == "dev"
+Requires-Dist: myst-parser==0.16.1; extra == "dev"
+Requires-Dist: sphinxcontrib-mermaid; extra == "dev"
+Requires-Dist: docutils==0.17.1; extra == "dev"
+Requires-Dist: psutil; extra == "dev"
+Requires-Dist: termcolor; extra == "dev"
+Requires-Dist: pynvml; extra == "dev"
+Requires-Dist: import-linter==1.8.0; extra == "dev"
+
+UNKNOWN
+
