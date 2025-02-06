@@ -1,0 +1,12 @@
+2024-12-20 21:51:29,713 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/quantization/qconfig_template.py:479] The qconfig of conv will be set to default_qat_8bit_weight_32bit_out_fake_quant_qconfig
+2024-12-20 21:51:29,715 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/quantization/qconfig_template.py:841] Template qconfig has been set!
+2024-12-20 21:51:29,723 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:69] Begin check qat model...
+2024-12-20 21:51:29,732 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:426] All fusable modules are fused in model!
+2024-12-20 21:51:29,732 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:512] All modules in the model run exactly once.
+2024-12-20 21:51:29,733 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:543] No obvious abnormal qconfig in the model.
+2024-12-20 21:51:29,736 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:670] Check full result in ./model_check_result.txt
+2024-12-20 21:51:29,736 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:680] End check
+2024-12-20 21:51:29,737 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/deprecate.py:280] <function export at 0x7f1c63d319e0> is in beta state and is subject to changes, we do not provide any guarantee
+2024-12-20 21:51:29,765 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/quantization/hbdk4/export_hbir/horizon_registry.py:300] Scale in FakeQuantize equals to its init value, feature statistics may not be gathered. Please use real scale values in model perf, or the perf result will be wrong.
+2024-12-20 21:51:29,780 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/quantization/hbdk4/export_hbir/horizon_registry.py:300] Scale in FakeQuantize equals to its init value, feature statistics may not be gathered. Please use real scale values in model perf, or the perf result will be wrong.
+2024-12-20 21:51:29,789 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/quantization/hbdk4/export_hbir/export_hbir.py:1227] Model ret: Tensor(shape=(1, 5), dtype=torch.float32, device=cuda:0)

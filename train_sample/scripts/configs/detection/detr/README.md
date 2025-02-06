@@ -1,0 +1,5 @@
+# Detection
+|   model              |  dataset |   backbone     |   Input shape      |   config  |  ckpt download       |  demo download       |
+| :----------:          | :-------:|  :--------:    |  :------------:    | :------: |        :--------:       | :--------:           |
+| DETR | MSCOCO | efficienetb3 | 800x1333 | configs/detection/detr/detr_efficientnetb3_mscoco.py | wget -c ftp://openexplorer@vrftp.horizon.ai/horizon_torch_samples/3.0.32/py310/modelzoo/qat_origin_modelzoo/detr_efficientnetb3_mscoco/* --ftp-password='c5R,2!pG' | wget -c ftp://openexplorer@vrftp.horizon.ai/horizon_torch_samples/3.0.32/py310/demo/detr_efficientnetb3_mscoco/* --ftp-password='c5R,2!pG' |
+| DETR | MSCOCO | resnet50 | 800x1333 | configs/detection/detr/detr_resnet50_mscoco.py | wget -c ftp://openexplorer@vrftp.horizon.ai/horizon_torch_samples/3.0.32/py310/modelzoo/qat_origin_modelzoo/detr_resnet50_mscoco/* --ftp-password='c5R,2!pG' | wget -c ftp://openexplorer@vrftp.horizon.ai/horizon_torch_samples/3.0.32/py310/demo/detr_resnet50_mscoco/* --ftp-password='c5R,2!pG' |

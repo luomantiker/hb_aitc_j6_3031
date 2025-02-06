@@ -1,0 +1,4 @@
+# Car keypoint detection
+|   model |  dataset |   backbone     |   Input shape      |   config  |  ckpt download | pretrian backbone |  demo download       |
+| :----------:          | :-------:|  :--------:    |  :------------:    | :------: |     :--------:  |  :--------:   | :--------:           |
+| HeatmapKeypointModel | CarFusion | EfficientNet-b0 | 128x128 | configs/keypoint/keypoint_efficientnetb0_carfusion.py | wget -c ftp://openexplorer@vrftp.horizon.ai/horizon_torch_samples/3.0.32/py310/modelzoo/qat_origin_modelzoo/keypoint_efficientnetb0_carfusion/* --ftp-password='c5R,2!pG' | wget -c ftp://openexplorer@vrftp.horizon.ai/horizon_torch_samples/3.0.32/py310/modelzoo/qat_origin_modelzoo/efficientnet_imagenet/float-checkpoint-best.pth.tar --ftp-password='c5R,2!pG' | wget -c ftp://openexplorer@vrftp.horizon.ai/horizon_torch_samples/3.0.32/py310/demo/keypoint_efficientnetb0_carfusion/* --ftp-password='c5R,2!pG' |

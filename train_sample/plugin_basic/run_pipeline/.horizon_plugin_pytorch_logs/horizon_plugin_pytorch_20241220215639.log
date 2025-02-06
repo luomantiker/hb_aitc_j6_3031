@@ -1,0 +1,28 @@
+2024-12-20 21:56:40,148 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/load_state_dict_helper.py:114] Do not find version in loaded metadata of module features.3.skip_add., use the default version 2.
+Most common reason is that the state_dict._metadata is missed when modifying state_dict
+2024-12-20 21:56:40,150 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/load_state_dict_helper.py:114] Do not find version in loaded metadata of module features.5.skip_add., use the default version 2.
+Most common reason is that the state_dict._metadata is missed when modifying state_dict
+2024-12-20 21:56:40,151 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/load_state_dict_helper.py:114] Do not find version in loaded metadata of module features.6.skip_add., use the default version 2.
+Most common reason is that the state_dict._metadata is missed when modifying state_dict
+2024-12-20 21:56:40,152 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/load_state_dict_helper.py:114] Do not find version in loaded metadata of module features.8.skip_add., use the default version 2.
+Most common reason is that the state_dict._metadata is missed when modifying state_dict
+2024-12-20 21:56:40,153 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/load_state_dict_helper.py:114] Do not find version in loaded metadata of module features.9.skip_add., use the default version 2.
+Most common reason is that the state_dict._metadata is missed when modifying state_dict
+2024-12-20 21:56:40,153 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/load_state_dict_helper.py:114] Do not find version in loaded metadata of module features.10.skip_add., use the default version 2.
+Most common reason is that the state_dict._metadata is missed when modifying state_dict
+2024-12-20 21:56:40,154 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/load_state_dict_helper.py:114] Do not find version in loaded metadata of module features.12.skip_add., use the default version 2.
+Most common reason is that the state_dict._metadata is missed when modifying state_dict
+2024-12-20 21:56:40,155 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/load_state_dict_helper.py:114] Do not find version in loaded metadata of module features.13.skip_add., use the default version 2.
+Most common reason is that the state_dict._metadata is missed when modifying state_dict
+2024-12-20 21:56:40,156 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/load_state_dict_helper.py:114] Do not find version in loaded metadata of module features.15.skip_add., use the default version 2.
+Most common reason is that the state_dict._metadata is missed when modifying state_dict
+2024-12-20 21:56:40,157 WARNING [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/load_state_dict_helper.py:114] Do not find version in loaded metadata of module features.16.skip_add., use the default version 2.
+Most common reason is that the state_dict._metadata is missed when modifying state_dict
+2024-12-20 21:56:40,768 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/quantization/qconfig_template.py:479] The qconfig of classifier.1 will be set to default_qat_8bit_weight_32bit_out_fake_quant_qconfig
+2024-12-20 21:56:40,786 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/quantization/qconfig_template.py:841] Template qconfig has been set!
+2024-12-20 21:56:40,915 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:69] Begin check qat model...
+2024-12-20 21:56:41,170 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:426] All fusable modules are fused in model!
+2024-12-20 21:56:41,171 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:512] All modules in the model run exactly once.
+2024-12-20 21:56:41,171 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:543] No obvious abnormal qconfig in the model.
+2024-12-20 21:56:41,189 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:670] Check full result in ./model_check_result.txt
+2024-12-20 21:56:41,190 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:680] End check

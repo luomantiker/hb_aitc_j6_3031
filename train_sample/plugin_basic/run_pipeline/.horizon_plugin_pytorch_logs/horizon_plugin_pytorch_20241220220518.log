@@ -1,0 +1,8 @@
+2024-12-20 22:05:20,735 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/quantization/qconfig_template.py:479] The qconfig of classifier.1 will be set to default_qat_8bit_weight_32bit_out_fake_quant_qconfig
+2024-12-20 22:05:20,756 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/quantization/qconfig_template.py:841] Template qconfig has been set!
+2024-12-20 22:05:20,974 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:69] Begin check qat model...
+2024-12-20 22:05:21,227 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:426] All fusable modules are fused in model!
+2024-12-20 22:05:21,228 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:512] All modules in the model run exactly once.
+2024-12-20 22:05:21,229 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:543] No obvious abnormal qconfig in the model.
+2024-12-20 22:05:21,283 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:670] Check full result in ./model_check_result.txt
+2024-12-20 22:05:21,283 INFO [/opt/miniconda3/lib/python3.11/site-packages/horizon_plugin_pytorch/utils/check_model.py:680] End check
